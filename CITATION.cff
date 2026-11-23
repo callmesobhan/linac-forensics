@@ -1,0 +1,114 @@
+cff-version: 1.2.0
+message: "If you use linac-forensics in your research, please cite it using the metadata below."
+title: "linac-forensics: Closed-Loop Linac Telemetry, EPID & Perturbative 3D Delivery-Forensics Engine with Frontier Agent Harness & MCP Server"
+version: 0.1.0
+date-released: "2026-11-23"
+license: Apache-2.0
+type: software
+authors:
+  - family-names: "linac-forensics Contributors"
+keywords:
+  - medical physics
+  - radiotherapy quality assurance
+  - linear accelerator telemetry
+  - trajectory log forensics
+  - perturbative 3D dose reconstruction
+  - AAPM TG-142
+  - AAPM TG-218
+  - causal fault attribution
+  - model context protocol
+references:
+  - type: article
+    authors:
+      - family-names: Klein
+        given-names: Eric E.
+      - family-names: Hanley
+        given-names: Joseph
+      - family-names: Bayouth
+        given-names: John
+    title: "Task Group 142 report: Quality assurance of medical accelerators"
+    journal: "Medical Physics"
+    volume: 36
+    issue: 9
+    start: 4197
+    end: 4212
+    year: 2009
+    doi: "10.1118/1.3190392"
+  - type: article
+    authors:
+      - family-names: Miften
+        given-names: Moyed
+      - family-names: Olch
+        given-names: Arthur
+      - family-names: Mihailidis
+        given-names: Dimitris
+    title: "Tolerance limits and methodologies for IMRT measurement-based verification QA: Recommendations of AAPM Task Group No. 218"
+    journal: "Medical Physics"
+    volume: 45
+    issue: 4
+    start: e53
+    end: e83
+    year: 2018
+    doi: "10.1002/mp.12810"
+  - type: article
+    authors:
+      - family-names: Nelms
+        given-names: Benjamin E.
+      - family-names: Zhen
+        given-names: Heming
+      - family-names: Tomé
+        given-names: Wolfgang A.
+    title: "Per-beam, planar IMRT QA passing rates do not predict clinically relevant patient dose errors"
+    journal: "Medical Physics"
+    volume: 38
+    issue: 2
+    start: 1037
+    end: 1044
+    year: 2011
+    doi: "10.1118/1.3544657"
+  - type: article
+    authors:
+      - family-names: Babier
+        given-names: Aaron
+      - family-names: Zhang
+        given-names: Binghao
+      - family-names: Mahmood
+        given-names: Rafid
+      - family-names: Moore
+        given-names: Kevin L.
+      - family-names: Purdie
+        given-names: Thomas G.
+      - family-names: McNiven
+        given-names: Andrea L.
+      - family-names: Chan
+        given-names: Timothy C. Y.
+    title: "OpenKBP: The open-access knowledge-based planning grand challenge and dataset"
+    journal: "Medical Physics"
+    volume: 48
+    issue: 9
+    start: 5549
+    end: 5561
+    year: 2021
+    doi: "10.1002/mp.14845"
+  - type: article
+    authors:
+      - family-names: Saltelli
+        given-names: Andrea
+      - family-names: Annoni
+        given-names: Paola
+      - family-names: Azzini
+        given-names: Ivano
+      - family-names: Campolongo
+        given-names: Francesca
+      - family-names: Ratto
+        given-names: Marco
+      - family-names: Tarantola
+        given-names: Stefano
+    title: "Variance based sensitivity analysis of model output. Design and estimator for the total sensitivity index"
+    journal: "Computer Physics Communications"
+    volume: 181
+    issue: 2
+    start: 259
+    end: 270
+    year: 2010
+    doi: "10.1016/j.cpc.2009.09.018"

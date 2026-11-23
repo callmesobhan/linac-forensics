@@ -1,0 +1,1006 @@
+{
+  "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+  "anatomy_source": "OpenKBP/pt_1 (CC BY 4.0, Babier et al. 2021)",
+  "binary_roundtrip": {
+    "version": "5.0",
+    "file_bytes": 375988,
+    "write_ms": 1.72,
+    "parse_ms": 3.57,
+    "max_leaf_roundtrip_error_mm": 5.719512607527122e-06
+  },
+  "zero_error_invariant": {
+    "replay_ms": 58.02,
+    "max_abs_delta_fluence": 0.0,
+    "max_abs_delta_dose_gy": 0.0,
+    "gamma_2d_3pct_2mm": 100.0,
+    "gamma_3d_3pct_2mm": 100.0
+  },
+  "causal_attribution_suite": [
+    {
+      "scenario": "Nominal (Zero Fault)",
+      "injected": {},
+      "primary_root_cause": "NULL_NOMINAL",
+      "active_faults": [],
+      "flagged_leaf": null,
+      "estimated_dlg_mm": -0.0004,
+      "estimated_dlg_ci95_mm": [
+        -0.0043,
+        0.0035
+      ],
+      "estimated_sag_amp_mm": 0.0013,
+      "estimated_sag_phase_deg": -16.94,
+      "estimated_mu_drift_pct": -0.0009,
+      "estimated_mu_ci95_pct": [
+        -0.0401,
+        0.0383
+      ],
+      "variance_explained_pct": 0.0,
+      "hypotheses_delta_bic": {
+        "NULL_NOMINAL": 0.0,
+        "SYSTEMATIC_DLG_OFFSET": -8.78,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": -9.666,
+        "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "GANTRY_GRAVITY_SAG_HARMONIC": -18.998
+      },
+      "hypotheses_posterior_weight": {
+        "NULL_NOMINAL": 0.972481,
+        "SYSTEMATIC_DLG_OFFSET": 0.012062,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 0.007744,
+        "MLC_LEAF_MOTOR_FRICTION": 0.007641,
+        "GANTRY_GRAVITY_SAG_HARMONIC": 7.3e-05
+      }
+    },
+    {
+      "scenario": "MLC Leaf #34 Viscous Drag",
+      "injected": {
+        "failing_bank": "B",
+        "failing_leaf_index": 34,
+        "leaf_drag_ms": 42.0
+      },
+      "primary_root_cause": "MLC_LEAF_MOTOR_FRICTION",
+      "active_faults": [
+        "MLC_LEAF_MOTOR_FRICTION"
+      ],
+      "flagged_leaf": {
+        "bank": "B",
+        "leaf_index": 34,
+        "tau_ms": 42.056,
+        "ci95_ms": [
+          41.991,
+          42.121
+        ]
+      },
+      "estimated_dlg_mm": 0.0005,
+      "estimated_dlg_ci95_mm": [
+        -0.0034,
+        0.0044
+      ],
+      "estimated_sag_amp_mm": 0.0026,
+      "estimated_sag_phase_deg": -133.23,
+      "estimated_mu_drift_pct": -0.001,
+      "estimated_mu_ci95_pct": [
+        -0.0402,
+        0.0382
+      ],
+      "variance_explained_pct": 98.959,
+      "hypotheses_delta_bic": {
+        "MLC_LEAF_MOTOR_FRICTION": 73938.249,
+        "NULL_NOMINAL": 0.0,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": -9.692,
+        "SYSTEMATIC_DLG_OFFSET": -9.697,
+        "GANTRY_GRAVITY_SAG_HARMONIC": -19.368
+      },
+      "hypotheses_posterior_weight": {
+        "MLC_LEAF_MOTOR_FRICTION": 1.0,
+        "NULL_NOMINAL": 0.0,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
+        "SYSTEMATIC_DLG_OFFSET": 0.0,
+        "GANTRY_GRAVITY_SAG_HARMONIC": 0.0
+      }
+    },
+    {
+      "scenario": "Systematic DLG Offset",
+      "injected": {
+        "dlg_offset_mm": 0.55
+      },
+      "primary_root_cause": "SYSTEMATIC_DLG_OFFSET",
+      "active_faults": [
+        "SYSTEMATIC_DLG_OFFSET"
+      ],
+      "flagged_leaf": null,
+      "estimated_dlg_mm": 0.5496,
+      "estimated_dlg_ci95_mm": [
+        0.5457,
+        0.5535
+      ],
+      "estimated_sag_amp_mm": 0.0019,
+      "estimated_sag_phase_deg": 23.08,
+      "estimated_mu_drift_pct": 0.0015,
+      "estimated_mu_ci95_pct": [
+        -0.0377,
+        0.0407
+      ],
+      "variance_explained_pct": 99.147,
+      "hypotheses_delta_bic": {
+        "SYSTEMATIC_DLG_OFFSET": 77171.362,
+        "NULL_NOMINAL": 0.0,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": -9.692,
+        "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "GANTRY_GRAVITY_SAG_HARMONIC": -19.378
+      },
+      "hypotheses_posterior_weight": {
+        "SYSTEMATIC_DLG_OFFSET": 1.0,
+        "NULL_NOMINAL": 0.0,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
+        "MLC_LEAF_MOTOR_FRICTION": 0.0,
+        "GANTRY_GRAVITY_SAG_HARMONIC": 0.0
+      }
+    },
+    {
+      "scenario": "Gantry Gravity-Sag Harmonic",
+      "injected": {
+        "gantry_sag_sin_mm": 0.9,
+        "gantry_sag_cos_mm": -0.45
+      },
+      "primary_root_cause": "GANTRY_GRAVITY_SAG_HARMONIC",
+      "active_faults": [
+        "GANTRY_GRAVITY_SAG_HARMONIC"
+      ],
+      "flagged_leaf": null,
+      "estimated_dlg_mm": 0.0,
+      "estimated_dlg_ci95_mm": [
+        -0.0039,
+        0.0039
+      ],
+      "estimated_sag_amp_mm": 1.0078,
+      "estimated_sag_phase_deg": -26.32,
+      "estimated_mu_drift_pct": 0.0011,
+      "estimated_mu_ci95_pct": [
+        -0.0381,
+        0.0403
+      ],
+      "variance_explained_pct": 93.965,
+      "hypotheses_delta_bic": {
+        "GANTRY_GRAVITY_SAG_HARMONIC": 45460.959,
+        "NULL_NOMINAL": 0.0,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": -9.689,
+        "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "SYSTEMATIC_DLG_OFFSET": -9.693
+      },
+      "hypotheses_posterior_weight": {
+        "GANTRY_GRAVITY_SAG_HARMONIC": 1.0,
+        "NULL_NOMINAL": 0.0,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
+        "MLC_LEAF_MOTOR_FRICTION": 0.0,
+        "SYSTEMATIC_DLG_OFFSET": 0.0
+      }
+    },
+    {
+      "scenario": "Ion-Chamber MU Drift",
+      "injected": {
+        "mu_drift_pct": -2.4
+      },
+      "primary_root_cause": "DOSE_RATE_ION_CHAMBER_DRIFT",
+      "active_faults": [
+        "DOSE_RATE_ION_CHAMBER_DRIFT"
+      ],
+      "flagged_leaf": null,
+      "estimated_dlg_mm": -0.0002,
+      "estimated_dlg_ci95_mm": [
+        -0.0041,
+        0.0037
+      ],
+      "estimated_sag_amp_mm": 0.0024,
+      "estimated_sag_phase_deg": -131.88,
+      "estimated_mu_drift_pct": -2.3998,
+      "estimated_mu_ci95_pct": [
+        -2.439,
+        -2.3606
+      ],
+      "variance_explained_pct": 91.625,
+      "hypotheses_delta_bic": {
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 40161.77,
+        "NULL_NOMINAL": 0.0,
+        "SYSTEMATIC_DLG_OFFSET": -9.669,
+        "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "GANTRY_GRAVITY_SAG_HARMONIC": -19.268
+      },
+      "hypotheses_posterior_weight": {
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 1.0,
+        "NULL_NOMINAL": 0.0,
+        "SYSTEMATIC_DLG_OFFSET": 0.0,
+        "MLC_LEAF_MOTOR_FRICTION": 0.0,
+        "GANTRY_GRAVITY_SAG_HARMONIC": 0.0
+      }
+    },
+    {
+      "scenario": "Joint 4-Subsystem Fault",
+      "injected": {
+        "failing_bank": "B",
+        "failing_leaf_index": 34,
+        "leaf_drag_ms": 42.0,
+        "dlg_offset_mm": 0.55,
+        "gantry_sag_sin_mm": 0.85,
+        "gantry_sag_cos_mm": 0.45,
+        "mu_drift_pct": 1.6
+      },
+      "primary_root_cause": "JOINT_MULTI_FAULT",
+      "active_faults": [
+        "MLC_LEAF_MOTOR_FRICTION",
+        "SYSTEMATIC_DLG_OFFSET",
+        "GANTRY_GRAVITY_SAG_HARMONIC",
+        "DOSE_RATE_ION_CHAMBER_DRIFT"
+      ],
+      "flagged_leaf": {
+        "bank": "B",
+        "leaf_index": 34,
+        "tau_ms": 41.936,
+        "ci95_ms": [
+          41.873,
+          42.0
+        ]
+      },
+      "estimated_dlg_mm": 0.5501,
+      "estimated_dlg_ci95_mm": [
+        0.5461,
+        0.554
+      ],
+      "estimated_sag_amp_mm": 0.9598,
+      "estimated_sag_phase_deg": 27.71,
+      "estimated_mu_drift_pct": 1.599,
+      "estimated_mu_ci95_pct": [
+        1.5598,
+        1.6382
+      ],
+      "variance_explained_pct": 99.565,
+      "hypotheses_delta_bic": {
+        "JOINT_MULTI_FAULT": 88023.714,
+        "SYSTEMATIC_DLG_OFFSET": 11576.701,
+        "MLC_LEAF_MOTOR_FRICTION": 8364.443,
+        "GANTRY_GRAVITY_SAG_HARMONIC": 982.179,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 329.284,
+        "NULL_NOMINAL": 0.0
+      },
+      "hypotheses_posterior_weight": {
+        "JOINT_MULTI_FAULT": 1.0,
+        "SYSTEMATIC_DLG_OFFSET": 0.0,
+        "MLC_LEAF_MOTOR_FRICTION": 0.0,
+        "GANTRY_GRAVITY_SAG_HARMONIC": 0.0,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
+        "NULL_NOMINAL": 0.0
+      }
+    }
+  ],
+  "gamma_blindspot_benchmark": {
+    "n_cases": 32,
+    "n_clinically_unacceptable": 16,
+    "n_2d_3pct_2mm_blindspots": 16,
+    "blindspot_rate_pct": 100.0,
+    "n_caught_by_3d_2pct_1mm": 16,
+    "cases": [
+      {
+        "case_id": "C01",
+        "dlg_offset_mm": -1.05,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 99.568,
+        "gamma_2d_2pct_1mm": 83.694,
+        "gamma_3d_3pct_2mm": 92.399,
+        "gamma_3d_2pct_1mm": 78.281,
+        "ptv70_delta_d95_pct": -3.0398,
+        "cord_delta_d003cc_gy": -0.9143,
+        "lpar_delta_dmean_gy": -1.4463,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C02",
+        "dlg_offset_mm": -1.05,
+        "leaf_drag_ms": 41.94,
+        "gantry_sag_mm": 0.661,
+        "mu_drift_pct": -0.615,
+        "gamma_2d_3pct_2mm": 95.639,
+        "gamma_2d_2pct_1mm": 70.216,
+        "gamma_3d_3pct_2mm": 84.191,
+        "gamma_3d_2pct_1mm": 72.227,
+        "ptv70_delta_d95_pct": -3.9783,
+        "cord_delta_d003cc_gy": -1.2691,
+        "lpar_delta_dmean_gy": -1.6675,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C03",
+        "dlg_offset_mm": -0.91,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 91.945,
+        "gamma_3d_3pct_2mm": 96.065,
+        "gamma_3d_2pct_1mm": 82.922,
+        "ptv70_delta_d95_pct": -2.5549,
+        "cord_delta_d003cc_gy": -0.7981,
+        "lpar_delta_dmean_gy": -1.2485,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C04",
+        "dlg_offset_mm": -0.91,
+        "leaf_drag_ms": 20.72,
+        "gantry_sag_mm": 0.382,
+        "mu_drift_pct": -0.264,
+        "gamma_2d_3pct_2mm": 99.725,
+        "gamma_2d_2pct_1mm": 87.819,
+        "gamma_3d_3pct_2mm": 92.898,
+        "gamma_3d_2pct_1mm": 78.788,
+        "ptv70_delta_d95_pct": -2.9286,
+        "cord_delta_d003cc_gy": -0.9443,
+        "lpar_delta_dmean_gy": -1.3456,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C05",
+        "dlg_offset_mm": -0.77,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 98.271,
+        "gamma_3d_3pct_2mm": 98.722,
+        "gamma_3d_2pct_1mm": 88.462,
+        "ptv70_delta_d95_pct": -2.084,
+        "cord_delta_d003cc_gy": -0.671,
+        "lpar_delta_dmean_gy": -1.0509,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C06",
+        "dlg_offset_mm": -0.77,
+        "leaf_drag_ms": 42.66,
+        "gantry_sag_mm": 0.109,
+        "mu_drift_pct": -0.303,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 94.892,
+        "gamma_3d_3pct_2mm": 95.826,
+        "gamma_3d_2pct_1mm": 82.452,
+        "ptv70_delta_d95_pct": -2.5565,
+        "cord_delta_d003cc_gy": -0.8724,
+        "lpar_delta_dmean_gy": -1.2285,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C07",
+        "dlg_offset_mm": -0.63,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 99.88,
+        "gamma_3d_2pct_1mm": 94.47,
+        "ptv70_delta_d95_pct": -1.6492,
+        "cord_delta_d003cc_gy": -0.5586,
+        "lpar_delta_dmean_gy": -0.8644,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C08",
+        "dlg_offset_mm": -0.63,
+        "leaf_drag_ms": 42.19,
+        "gantry_sag_mm": 0.91,
+        "mu_drift_pct": 0.25,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 98.389,
+        "gamma_3d_3pct_2mm": 99.315,
+        "gamma_3d_2pct_1mm": 94.942,
+        "ptv70_delta_d95_pct": -1.5629,
+        "cord_delta_d003cc_gy": -0.3236,
+        "lpar_delta_dmean_gy": -0.5584,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C09",
+        "dlg_offset_mm": -0.49,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 98.951,
+        "ptv70_delta_d95_pct": -1.2312,
+        "cord_delta_d003cc_gy": -0.4313,
+        "lpar_delta_dmean_gy": -0.6604,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C10",
+        "dlg_offset_mm": -0.49,
+        "leaf_drag_ms": 11.15,
+        "gantry_sag_mm": 0.432,
+        "mu_drift_pct": 0.89,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 99.975,
+        "ptv70_delta_d95_pct": -0.305,
+        "cord_delta_d003cc_gy": 0.158,
+        "lpar_delta_dmean_gy": -0.1255,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C11",
+        "dlg_offset_mm": -0.35,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 99.998,
+        "ptv70_delta_d95_pct": -0.822,
+        "cord_delta_d003cc_gy": -0.302,
+        "lpar_delta_dmean_gy": -0.4625,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C12",
+        "dlg_offset_mm": -0.35,
+        "leaf_drag_ms": 50.97,
+        "gantry_sag_mm": 0.849,
+        "mu_drift_pct": -0.814,
+        "gamma_2d_3pct_2mm": 99.882,
+        "gamma_2d_2pct_1mm": 97.8,
+        "gamma_3d_3pct_2mm": 98.141,
+        "gamma_3d_2pct_1mm": 87.816,
+        "ptv70_delta_d95_pct": -2.0583,
+        "cord_delta_d003cc_gy": -0.618,
+        "lpar_delta_dmean_gy": -0.7696,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C13",
+        "dlg_offset_mm": -0.21,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 100.0,
+        "ptv70_delta_d95_pct": -0.4504,
+        "cord_delta_d003cc_gy": -0.1765,
+        "lpar_delta_dmean_gy": -0.2746,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C14",
+        "dlg_offset_mm": -0.21,
+        "leaf_drag_ms": 46.29,
+        "gantry_sag_mm": 0.194,
+        "mu_drift_pct": -0.385,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 99.725,
+        "gamma_3d_3pct_2mm": 99.79,
+        "gamma_3d_2pct_1mm": 99.18,
+        "ptv70_delta_d95_pct": -0.9647,
+        "cord_delta_d003cc_gy": -0.4118,
+        "lpar_delta_dmean_gy": -0.471,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C15",
+        "dlg_offset_mm": -0.07,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 100.0,
+        "ptv70_delta_d95_pct": -0.1034,
+        "cord_delta_d003cc_gy": -0.0534,
+        "lpar_delta_dmean_gy": -0.0701,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C16",
+        "dlg_offset_mm": -0.07,
+        "leaf_drag_ms": 21.6,
+        "gantry_sag_mm": 0.466,
+        "mu_drift_pct": -0.922,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 99.968,
+        "gamma_3d_2pct_1mm": 97.345,
+        "ptv70_delta_d95_pct": -1.1835,
+        "cord_delta_d003cc_gy": -0.4104,
+        "lpar_delta_dmean_gy": -0.5109,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C17",
+        "dlg_offset_mm": 0.07,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 100.0,
+        "ptv70_delta_d95_pct": 0.2406,
+        "cord_delta_d003cc_gy": 0.1538,
+        "lpar_delta_dmean_gy": 0.1231,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C18",
+        "dlg_offset_mm": 0.07,
+        "leaf_drag_ms": 13.72,
+        "gantry_sag_mm": 0.906,
+        "mu_drift_pct": -1.018,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 99.764,
+        "gamma_3d_3pct_2mm": 99.817,
+        "gamma_3d_2pct_1mm": 97.173,
+        "ptv70_delta_d95_pct": -1.004,
+        "cord_delta_d003cc_gy": -0.0899,
+        "lpar_delta_dmean_gy": -0.268,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C19",
+        "dlg_offset_mm": 0.21,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 100.0,
+        "ptv70_delta_d95_pct": 0.6054,
+        "cord_delta_d003cc_gy": 0.3611,
+        "lpar_delta_dmean_gy": 0.3309,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C20",
+        "dlg_offset_mm": 0.21,
+        "leaf_drag_ms": 23.46,
+        "gantry_sag_mm": 0.003,
+        "mu_drift_pct": -0.092,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 99.962,
+        "ptv70_delta_d95_pct": 0.4979,
+        "cord_delta_d003cc_gy": 0.2341,
+        "lpar_delta_dmean_gy": 0.2459,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C21",
+        "dlg_offset_mm": 0.35,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 99.994,
+        "ptv70_delta_d95_pct": 0.9526,
+        "cord_delta_d003cc_gy": 0.5678,
+        "lpar_delta_dmean_gy": 0.5281,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C22",
+        "dlg_offset_mm": 0.35,
+        "leaf_drag_ms": 9.08,
+        "gantry_sag_mm": 0.041,
+        "mu_drift_pct": 0.749,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 99.989,
+        "gamma_3d_2pct_1mm": 90.725,
+        "ptv70_delta_d95_pct": 1.7216,
+        "cord_delta_d003cc_gy": 0.9023,
+        "lpar_delta_dmean_gy": 0.9167,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C23",
+        "dlg_offset_mm": 0.49,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 100.0,
+        "gamma_3d_2pct_1mm": 98.918,
+        "ptv70_delta_d95_pct": 1.2725,
+        "cord_delta_d003cc_gy": 0.7469,
+        "lpar_delta_dmean_gy": 0.7282,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C24",
+        "dlg_offset_mm": 0.49,
+        "leaf_drag_ms": 14.7,
+        "gantry_sag_mm": 0.973,
+        "mu_drift_pct": -0.556,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 99.826,
+        "gamma_3d_2pct_1mm": 98.691,
+        "ptv70_delta_d95_pct": 0.5301,
+        "cord_delta_d003cc_gy": 0.7927,
+        "lpar_delta_dmean_gy": 0.5857,
+        "clinically_unacceptable": false,
+        "gamma_blindspot": false
+      },
+      {
+        "case_id": "C25",
+        "dlg_offset_mm": 0.63,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 100.0,
+        "gamma_3d_3pct_2mm": 99.842,
+        "gamma_3d_2pct_1mm": 94.563,
+        "ptv70_delta_d95_pct": 1.5947,
+        "cord_delta_d003cc_gy": 0.9643,
+        "lpar_delta_dmean_gy": 0.9314,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C26",
+        "dlg_offset_mm": 0.63,
+        "leaf_drag_ms": 42.62,
+        "gantry_sag_mm": 0.53,
+        "mu_drift_pct": 0.41,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 98.703,
+        "gamma_3d_3pct_2mm": 97.716,
+        "gamma_3d_2pct_1mm": 85.849,
+        "ptv70_delta_d95_pct": 1.9949,
+        "cord_delta_d003cc_gy": 1.3356,
+        "lpar_delta_dmean_gy": 1.242,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C27",
+        "dlg_offset_mm": 0.77,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 98.978,
+        "gamma_3d_3pct_2mm": 98.797,
+        "gamma_3d_2pct_1mm": 89.053,
+        "ptv70_delta_d95_pct": 1.8915,
+        "cord_delta_d003cc_gy": 1.164,
+        "lpar_delta_dmean_gy": 1.1233,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C28",
+        "dlg_offset_mm": 0.77,
+        "leaf_drag_ms": 50.79,
+        "gantry_sag_mm": 0.249,
+        "mu_drift_pct": 0.315,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 96.11,
+        "gamma_3d_3pct_2mm": 96.148,
+        "gamma_3d_2pct_1mm": 83.011,
+        "ptv70_delta_d95_pct": 2.1927,
+        "cord_delta_d003cc_gy": 1.3883,
+        "lpar_delta_dmean_gy": 1.3285,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C29",
+        "dlg_offset_mm": 0.91,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 92.809,
+        "gamma_3d_3pct_2mm": 96.322,
+        "gamma_3d_2pct_1mm": 83.475,
+        "ptv70_delta_d95_pct": 2.1776,
+        "cord_delta_d003cc_gy": 1.3569,
+        "lpar_delta_dmean_gy": 1.3295,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C30",
+        "dlg_offset_mm": 0.91,
+        "leaf_drag_ms": 8.91,
+        "gantry_sag_mm": 0.558,
+        "mu_drift_pct": -0.813,
+        "gamma_2d_3pct_2mm": 100.0,
+        "gamma_2d_2pct_1mm": 99.057,
+        "gamma_3d_3pct_2mm": 99.37,
+        "gamma_3d_2pct_1mm": 94.958,
+        "ptv70_delta_d95_pct": 1.1638,
+        "cord_delta_d003cc_gy": 1.1047,
+        "lpar_delta_dmean_gy": 0.9511,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C31",
+        "dlg_offset_mm": 1.05,
+        "leaf_drag_ms": 0.0,
+        "gantry_sag_mm": 0.15,
+        "mu_drift_pct": 0.0,
+        "gamma_2d_3pct_2mm": 99.646,
+        "gamma_2d_2pct_1mm": 84.597,
+        "gamma_3d_3pct_2mm": 92.766,
+        "gamma_3d_2pct_1mm": 79.082,
+        "ptv70_delta_d95_pct": 2.4646,
+        "cord_delta_d003cc_gy": 1.5781,
+        "lpar_delta_dmean_gy": 1.5361,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      },
+      {
+        "case_id": "C32",
+        "dlg_offset_mm": 1.05,
+        "leaf_drag_ms": 41.02,
+        "gantry_sag_mm": 0.128,
+        "mu_drift_pct": -0.133,
+        "gamma_2d_3pct_2mm": 99.843,
+        "gamma_2d_2pct_1mm": 86.876,
+        "gamma_3d_3pct_2mm": 94.187,
+        "gamma_3d_2pct_1mm": 81.43,
+        "ptv70_delta_d95_pct": 2.2784,
+        "cord_delta_d003cc_gy": 1.4877,
+        "lpar_delta_dmean_gy": 1.4467,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
+      }
+    ]
+  },
+  "fleet_triage_summary": {
+    "incident_id": "INC-TB01-WK47",
+    "critic_gate_passed": true,
+    "critic_checks": "6/6",
+    "isolated_subsystems": [
+      "MLC Bank B Leaf #34 Motor / T-Nut (\u03c4=45.0 ms)",
+      "MLC Bank Calibration / DLG (-0.779 mm)",
+      "Gantry Head / Carriage Flex (0.21 mm harmonic)",
+      "Monitor Ion-Chamber Gain (-0.30%)"
+    ],
+    "urgency": "IMMEDIATE_LOCKOUT",
+    "n_patients": 6,
+    "n_critical": 3,
+    "tb01_early_warning_day": 19,
+    "tb01_action_breach_day": 26
+  },
+  "sobol_sensitivity": {
+    "runtime_s": 1.02,
+    "reports": {
+      "PTV70_delta_D95_pct": {
+        "output_metric": "PTV70_delta_D95_pct",
+        "n_base_samples": 512,
+        "total_evaluations": 3072,
+        "parameter_names": [
+          "mlc_leaf_lag_ms",
+          "dlg_offset_mm",
+          "gantry_sag_amp_mm",
+          "mu_output_drift_pct"
+        ],
+        "parameter_bounds": {
+          "mlc_leaf_lag_ms": [
+            0.0,
+            60.0
+          ],
+          "dlg_offset_mm": [
+            -0.8,
+            0.8
+          ],
+          "gantry_sag_amp_mm": [
+            0.0,
+            2.0
+          ],
+          "mu_output_drift_pct": [
+            -3.0,
+            3.0
+          ]
+        },
+        "first_order_s1": {
+          "mlc_leaf_lag_ms": 0.33065,
+          "dlg_offset_mm": 0.18083,
+          "gantry_sag_amp_mm": 0.01475,
+          "mu_output_drift_pct": 0.47115
+        },
+        "total_order_st": {
+          "mlc_leaf_lag_ms": 0.33307,
+          "dlg_offset_mm": 0.18221,
+          "gantry_sag_amp_mm": 0.01455,
+          "mu_output_drift_pct": 0.47176
+        },
+        "s1_ci95": {
+          "mlc_leaf_lag_ms": [
+            0.22947,
+            0.43334
+          ],
+          "dlg_offset_mm": [
+            0.1152,
+            0.25338
+          ],
+          "gantry_sag_amp_mm": [
+            0.0,
+            0.03606
+          ],
+          "mu_output_drift_pct": [
+            0.35082,
+            0.57677
+          ]
+        },
+        "st_ci95": {
+          "mlc_leaf_lag_ms": [
+            0.29136,
+            0.37311
+          ],
+          "dlg_offset_mm": [
+            0.16064,
+            0.20839
+          ],
+          "gantry_sag_amp_mm": [
+            0.0128,
+            0.01623
+          ],
+          "mu_output_drift_pct": [
+            0.42472,
+            0.53058
+          ]
+        },
+        "interaction_index": {
+          "mlc_leaf_lag_ms": 0.00242,
+          "dlg_offset_mm": 0.00138,
+          "gantry_sag_amp_mm": 0.0,
+          "mu_output_drift_pct": 0.00061
+        },
+        "provenance": {
+          "record_id": "sobol:PTV70_delta_D95_pct",
+          "provenance_tag": "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
+          "dataset_source": "OpenKBP/pt_1 (CC BY 4.0, Babier et al. 2021) (3D perturbative response)",
+          "sha256_inputs": {
+            "sobol_config": "eb7d2246446e6f1c7771d93f45946d5967c2a322aade0db3835c6563116ed52b"
+          },
+          "engine_version": "0.1.0",
+          "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+          "created_utc": "2026-11-23T22:19:06.664129+00:00",
+          "notes": "Exact Saltelli-Jansen QMC Sobol' sensitivity (3072 evaluations)."
+        }
+      },
+      "SpinalCord_delta_D003cc_Gy": {
+        "output_metric": "SpinalCord_delta_D003cc_Gy",
+        "n_base_samples": 512,
+        "total_evaluations": 3072,
+        "parameter_names": [
+          "mlc_leaf_lag_ms",
+          "dlg_offset_mm",
+          "gantry_sag_amp_mm",
+          "mu_output_drift_pct"
+        ],
+        "parameter_bounds": {
+          "mlc_leaf_lag_ms": [
+            0.0,
+            60.0
+          ],
+          "dlg_offset_mm": [
+            -0.8,
+            0.8
+          ],
+          "gantry_sag_amp_mm": [
+            0.0,
+            2.0
+          ],
+          "mu_output_drift_pct": [
+            -3.0,
+            3.0
+          ]
+        },
+        "first_order_s1": {
+          "mlc_leaf_lag_ms": 0.05489,
+          "dlg_offset_mm": 0.21376,
+          "gantry_sag_amp_mm": 0.30805,
+          "mu_output_drift_pct": 0.40892
+        },
+        "total_order_st": {
+          "mlc_leaf_lag_ms": 0.06356,
+          "dlg_offset_mm": 0.22379,
+          "gantry_sag_amp_mm": 0.31522,
+          "mu_output_drift_pct": 0.41575
+        },
+        "s1_ci95": {
+          "mlc_leaf_lag_ms": [
+            0.01827,
+            0.09366
+          ],
+          "dlg_offset_mm": [
+            0.13195,
+            0.29068
+          ],
+          "gantry_sag_amp_mm": [
+            0.21937,
+            0.40924
+          ],
+          "mu_output_drift_pct": [
+            0.30117,
+            0.50264
+          ]
+        },
+        "st_ci95": {
+          "mlc_leaf_lag_ms": [
+            0.05436,
+            0.07315
+          ],
+          "dlg_offset_mm": [
+            0.19594,
+            0.25497
+          ],
+          "gantry_sag_amp_mm": [
+            0.28195,
+            0.35604
+          ],
+          "mu_output_drift_pct": [
+            0.371,
+            0.47543
+          ]
+        },
+        "interaction_index": {
+          "mlc_leaf_lag_ms": 0.00867,
+          "dlg_offset_mm": 0.01002,
+          "gantry_sag_amp_mm": 0.00718,
+          "mu_output_drift_pct": 0.00683
+        },
+        "provenance": {
+          "record_id": "sobol:SpinalCord_delta_D003cc_Gy",
+          "provenance_tag": "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
+          "dataset_source": "OpenKBP/pt_1 (CC BY 4.0, Babier et al. 2021) (3D perturbative response)",
+          "sha256_inputs": {
+            "sobol_config": "c2db86512a23dc54ed770613468288a5a5267f5c05e492574b142b18aaf450d5"
+          },
+          "engine_version": "0.1.0",
+          "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+          "created_utc": "2026-11-23T22:19:06.666870+00:00",
+          "notes": "Exact Saltelli-Jansen QMC Sobol' sensitivity (3072 evaluations)."
+        }
+      }
+    }
+  }
+}
