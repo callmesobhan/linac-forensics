@@ -333,9 +333,13 @@ def parse_varian_trajectory_bin(
 
     valid_tags = {
         "OPEN_PUBLIC_ANATOMY_OPENKBP_PT1",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_PT2",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_PT3",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_COHORT",
         "SYNTHETIC_FAULT_INJECTION_BENCHMARK",
         "SYNTHETIC_TG142_FLEET_DRIFT",
         "VENDOR_TRAJECTORY_LOG",
+        "EPID_THREE_WAY_FORENSICS",
         "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
     }
     prov_tag = prov_tag_raw if prov_tag_raw in valid_tags else "VENDOR_TRAJECTORY_LOG"
@@ -524,6 +528,7 @@ def generate_synthetic_vmat_log(
     failing_bank: Literal["A", "B"] = "B",
     failing_leaf_index: int = 34,  # 1-based clinical leaf index
     leaf_drag_ms: float = 0.0,
+    leaf_stiction_mm: float = 0.0,
     dlg_offset_mm: float = 0.0,
     gantry_sag_sin_mm: float = 0.0,
     gantry_sag_cos_mm: float = 0.0,
@@ -603,17 +608,19 @@ def generate_synthetic_vmat_log(
         bank_b_act[:, active_start:active_end] -= 0.5 * dlg_offset_mm
 
     # 2. Inject localized leaf viscous drag: Δx_i(t) = -τ_i * v_i(t)
-    if leaf_drag_ms != 0.0:
+    #    and/or nonlinear Coulomb/Stribeck stiction: Δx_i(t) = -β_i * tanh(v_i(t) / v_0)
+    if leaf_drag_ms != 0.0 or leaf_stiction_mm != 0.0:
         leaf_0 = failing_leaf_index - 1
         if not (0 <= leaf_0 < n_leaves_per_bank):
             raise ValueError(f"failing_leaf_index {failing_leaf_index} out of range 1..{n_leaves_per_bank}")
         tau_s = leaf_drag_ms / 1000.0
+        v0_stiction = 5.0
         if failing_bank == "A":
             vel = np.gradient(bank_a_exp[:, leaf_0], dt_s)
-            bank_a_act[:, leaf_0] += -tau_s * vel
+            bank_a_act[:, leaf_0] += -tau_s * vel - leaf_stiction_mm * np.tanh(vel / v0_stiction)
         else:
             vel = np.gradient(bank_b_exp[:, leaf_0], dt_s)
-            bank_b_act[:, leaf_0] += -tau_s * vel
+            bank_b_act[:, leaf_0] += -tau_s * vel - leaf_stiction_mm * np.tanh(vel / v0_stiction)
 
     # 3. Inject gantry gravity-sag harmonic: Δy(θ) = A sin(θ) + B cos(θ)
     if gantry_sag_sin_mm != 0.0 or gantry_sag_cos_mm != 0.0:
@@ -648,6 +655,7 @@ def generate_synthetic_vmat_log(
         "failing_bank": failing_bank,
         "failing_leaf_index": failing_leaf_index,
         "leaf_drag_ms": leaf_drag_ms,
+        "leaf_stiction_mm": leaf_stiction_mm,
         "dlg_offset_mm": dlg_offset_mm,
         "gantry_sag_sin_mm": gantry_sag_sin_mm,
         "gantry_sag_cos_mm": gantry_sag_cos_mm,
@@ -700,3 +708,176 @@ def generate_synthetic_vmat_log(
         provenance=provenance,
     )
     return validate_trajectory_tensor(tensor)
+
+
+def write_varian_dynalog_dlg(
+    tensor: TrajectoryLogTensor,
+    bank_a_path: str | Path,
+    bank_b_path: str | Path,
+) -> tuple[Path, Path]:
+    """Export a TrajectoryLogTensor as a paired Varian Clinac/Trilogy Dynalog (.dlg) Bank A/B pair."""
+    a_out = Path(bank_a_path)
+    b_out = Path(bank_b_path)
+    a_out.parent.mkdir(parents=True, exist_ok=True)
+    b_out.parent.mkdir(parents=True, exist_ok=True)
+
+    total_mu = max(float(tensor.mu_expected[-1]), 1e-6)
+    n_leaves = tensor.n_leaves_per_bank
+
+    for bank_char, dest, exp_mat, act_mat in (
+        ("A", a_out, tensor.bank_a_expected_mm, tensor.bank_a_actual_mm),
+        ("B", b_out, tensor.bank_b_expected_mm, tensor.bank_b_actual_mm),
+    ):
+        lines = [
+            "B",
+            f"{tensor.patient_id},{tensor.plan_id},{tensor.machine_id},{total_mu:.4f}",
+            f"{tensor.log_id}_BANK_{bank_char}",
+            "0.0",
+            f"{n_leaves}",
+            f"{tensor.sampling_interval_ms:.1f}",
+        ]
+        for t in range(tensor.n_snapshots):
+            df_exp = int(round(25000.0 * float(tensor.mu_expected[t]) / total_mu))
+            df_act = int(round(25000.0 * float(tensor.mu_actual[t]) / total_mu))
+            hold = int(tensor.beam_hold[t])
+            g_exp = int(round(float(tensor.gantry_expected_deg[t]) * 10.0))
+            g_act = int(round(float(tensor.gantry_actual_deg[t]) * 10.0))
+            c_exp = int(round(float(tensor.collimator_expected_deg[t]) * 10.0))
+            y1_exp = int(round(float(tensor.jaw_expected_mm["Y1"][t]) * 10.0))
+            y1_act = int(round(float(tensor.jaw_actual_mm["Y1"][t]) * 10.0))
+            y2_exp = int(round(float(tensor.jaw_expected_mm["Y2"][t]) * 10.0))
+            y2_act = int(round(float(tensor.jaw_actual_mm["Y2"][t]) * 10.0))
+            x1_exp = int(round(float(tensor.jaw_expected_mm["X1"][t]) * 10.0))
+            x2_exp = int(round(float(tensor.jaw_expected_mm["X2"][t]) * 10.0))
+            row = [
+                df_exp,
+                df_act,
+                hold,
+                g_exp,
+                g_act,
+                c_exp,
+                y1_exp,
+                y1_act,
+                y2_exp,
+                y2_act,
+                x1_exp,
+                x2_exp,
+            ]
+            for l_idx in range(n_leaves):
+                row.append(int(round(float(exp_mat[t][l_idx]) * 100.0)))
+                row.append(int(round(float(act_mat[t][l_idx]) * 100.0)))
+            lines.append(",".join(str(v) for v in row))
+        dest.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    return a_out, b_out
+
+
+def parse_varian_dynalog_dlg(
+    bank_a_path: str | Path,
+    bank_b_path: str | Path,
+    validate: bool = True,
+) -> TrajectoryLogTensor:
+    """Parse a paired Varian Clinac/Trilogy Dynalog (.dlg) Bank A & Bank B file pair."""
+    pa = Path(bank_a_path)
+    pb = Path(bank_b_path)
+    if not pa.exists() or not pb.exists():
+        raise AbstentionError(
+            AbstentionCode.CORRUPTED_BINARY_LOG,
+            "Both Bank A and Bank B Dynalog (.dlg) files must exist.",
+            {"bank_a": str(pa), "bank_b": str(pb)},
+        )
+
+    lines_a = [ln.strip() for ln in pa.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    lines_b = [ln.strip() for ln in pb.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    if len(lines_a) < 8 or len(lines_b) < 8 or lines_a[0] != "B" or lines_b[0] != "B":
+        raise AbstentionError(
+            AbstentionCode.CORRUPTED_BINARY_LOG,
+            "Invalid or truncated Varian Dynalog Version B header.",
+        )
+
+    meta = lines_a[1].split(",")
+    patient_id = meta[0] if len(meta) > 0 and meta[0] else "dynalog_pt"
+    plan_id = meta[1] if len(meta) > 1 and meta[1] else "dynalog_plan"
+    machine_id = meta[2] if len(meta) > 2 and meta[2] else "Clinac-21EX"
+    total_mu = float(meta[3]) if len(meta) > 3 else 300.0
+    n_leaves = int(lines_a[4])
+    dt_ms = float(lines_a[5])
+
+    rows_a = lines_a[6:]
+    rows_b = lines_b[6:]
+    if len(rows_a) != len(rows_b):
+        raise AbstentionError(
+            AbstentionCode.TIMESTAMP_DESYNC,
+            f"Dynalog Bank A ({len(rows_a)}) and Bank B ({len(rows_b)}) snapshot count mismatch.",
+        )
+
+    n_snap = len(rows_a)
+    ts = [i * dt_ms for i in range(n_snap)]
+    g_exp, g_act, c_exp, mu_exp, mu_act, hold = [], [], [], [], [], []
+    jaw_exp: dict[str, list[float]] = {"X1": [], "X2": [], "Y1": [], "Y2": []}
+    jaw_act: dict[str, list[float]] = {"X1": [], "X2": [], "Y1": [], "Y2": []}
+    ba_exp, ba_act, bb_exp, bb_act = [], [], [], []
+
+    for ra, rb in zip(rows_a, rows_b, strict=True):
+        fa = [int(x) for x in ra.split(",")]
+        fb = [int(x) for x in rb.split(",")]
+        expected_cols = 12 + 2 * n_leaves
+        if len(fa) != expected_cols or len(fb) != expected_cols:
+            raise AbstentionError(
+                AbstentionCode.CORRUPTED_BINARY_LOG,
+                f"Dynalog column count mismatch (expected {expected_cols}).",
+            )
+        mu_exp.append(total_mu * fa[0] / 25000.0)
+        mu_act.append(total_mu * fa[1] / 25000.0)
+        hold.append(fa[2])
+        g_exp.append(fa[3] / 10.0)
+        g_act.append(fa[4] / 10.0)
+        c_exp.append(fa[5] / 10.0)
+        jaw_exp["Y1"].append(fa[6] / 10.0)
+        jaw_act["Y1"].append(fa[7] / 10.0)
+        jaw_exp["Y2"].append(fa[8] / 10.0)
+        jaw_act["Y2"].append(fa[9] / 10.0)
+        jaw_exp["X1"].append(fa[10] / 10.0)
+        jaw_act["X1"].append(fa[10] / 10.0)
+        jaw_exp["X2"].append(fa[11] / 10.0)
+        jaw_act["X2"].append(fa[11] / 10.0)
+        ba_exp.append([fa[12 + 2 * i] / 100.0 for i in range(n_leaves)])
+        ba_act.append([fa[13 + 2 * i] / 100.0 for i in range(n_leaves)])
+        bb_exp.append([fb[12 + 2 * i] / 100.0 for i in range(n_leaves)])
+        bb_act.append([fb[13 + 2 * i] / 100.0 for i in range(n_leaves)])
+
+    lid = lines_a[2].replace("_BANK_A", "") or pa.stem
+    prov = build_provenance(
+        record_id=f"dlg:{lid}",
+        provenance_tag="VENDOR_TRAJECTORY_LOG",
+        dataset_source=f"Varian Legacy Dynalog Version B ({pa.name}, {pb.name})",
+        sha256_inputs={"bank_a_dlg": sha256_file(pa), "bank_b_dlg": sha256_file(pb)},
+        notes=f"Parsed {n_snap} Dynalog snapshots ({n_leaves} leaves/bank).",
+    )
+    tensor = TrajectoryLogTensor(
+        log_id=lid,
+        header_version="DYNALOG-B",
+        machine_id=machine_id,
+        patient_id=patient_id,
+        plan_id=plan_id,
+        sampling_interval_ms=dt_ms,
+        n_snapshots=n_snap,
+        n_leaves_per_bank=n_leaves,
+        coordinate_system="IEC61217",
+        timestamps_ms=ts,
+        gantry_expected_deg=g_exp,
+        gantry_actual_deg=g_act,
+        collimator_expected_deg=c_exp,
+        collimator_actual_deg=c_exp,
+        jaw_expected_mm=jaw_exp,
+        jaw_actual_mm=jaw_act,
+        mu_expected=mu_exp,
+        mu_actual=mu_act,
+        beam_hold=hold,
+        bank_a_expected_mm=ba_exp,
+        bank_a_actual_mm=ba_act,
+        bank_b_expected_mm=bb_exp,
+        bank_b_actual_mm=bb_act,
+        provenance=prov,
+    )
+    return validate_trajectory_tensor(tensor) if validate else tensor

@@ -24,7 +24,15 @@ ROI_TYPES: dict[str, str] = {
     "LeftParotid": "OAR",
     "RightParotid": "OAR",
     "Mandible": "OAR",
+    "Esophagus": "OAR",
 }
+
+
+def ct_hu_to_relative_electron_density(ct_hu: np.ndarray) -> np.ndarray:
+    """Piecewise-linear clinical CT Hounsfield Unit (HU) to relative electron density (rho_e)."""
+    hu_knots = np.array([-1000.0, -700.0, -100.0, 0.0, 100.0, 400.0, 1200.0, 3000.0], dtype=np.float64)
+    rho_knots = np.array([0.001, 0.290, 0.900, 1.000, 1.070, 1.240, 1.690, 2.450], dtype=np.float64)
+    return np.interp(np.asarray(ct_hu, dtype=np.float64), hu_knots, rho_knots)
 
 
 @dataclass(frozen=True)
@@ -117,10 +125,15 @@ def load_openkbp_patient(
         if roi_path.exists():
             roi_masks[roi_name] = _load_sparse_mask_csv(roi_path, OPENKBP_GRID_SHAPE)
 
+    tag_map = {
+        "pt_1": "OPEN_PUBLIC_ANATOMY_OPENKBP_PT1",
+        "pt_2": "OPEN_PUBLIC_ANATOMY_OPENKBP_PT2",
+        "pt_3": "OPEN_PUBLIC_ANATOMY_OPENKBP_PT3",
+    }
     return PatientAnatomyVolume(
         patient_id=pdir.name,
         anatomy_source=f"OpenKBP/{pdir.name} (CC BY 4.0, Babier et al. 2021)",
-        provenance_tag="OPEN_PUBLIC_ANATOMY_OPENKBP_PT1",
+        provenance_tag=tag_map.get(pdir.name, "OPEN_PUBLIC_ANATOMY_OPENKBP_COHORT"),
         ct_hu=ct_hu,
         planned_dose_gy=planned_dose_gy,
         possible_dose_mask=possible_dose_mask,
@@ -128,6 +141,21 @@ def load_openkbp_patient(
         roi_masks=roi_masks,
         sha256_inputs=sha_map,
     )
+
+
+def load_openkbp_cohort(
+    openkbp_root: str | Path,
+    patient_ids: list[str] | None = None,
+    verify_manifest: bool = True,
+) -> dict[str, PatientAnatomyVolume]:
+    """Load multiple SHA-256 verified OpenKBP patients (e.g. pt_1, pt_2, pt_3)."""
+    root = Path(openkbp_root)
+    ids = patient_ids or ["pt_1", "pt_2", "pt_3"]
+    return {
+        pid: load_openkbp_patient(root / pid, verify_manifest=verify_manifest)
+        for pid in ids
+        if (root / pid).exists()
+    }
 
 
 def build_synthetic_phantom_anatomy(shape: tuple[int, int, int] = (48, 48, 48)) -> PatientAnatomyVolume:

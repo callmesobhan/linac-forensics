@@ -23,7 +23,11 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 from scipy.special import erf
 
-from linac_forensics.anatomy import ROI_TYPES, PatientAnatomyVolume
+from linac_forensics.anatomy import (
+    ROI_TYPES,
+    PatientAnatomyVolume,
+    ct_hu_to_relative_electron_density,
+)
 from linac_forensics.ir import (
     PerturbativeDoseImpact,
     StructureDVHShift,
@@ -42,6 +46,7 @@ _ROI_BIO_PARAMS: dict[str, dict[str, float]] = {
     "LeftParotid": {"a": 1.0, "d50": 32.0, "gamma50": 2.0, "rx": 26.0},
     "RightParotid": {"a": 1.0, "d50": 32.0, "gamma50": 2.0, "rx": 26.0},
     "Mandible": {"a": 10.0, "d50": 72.0, "gamma50": 4.0, "rx": 70.0},
+    "Esophagus": {"a": 5.0, "d50": 55.0, "gamma50": 3.0, "rx": 45.0},
 }
 
 
@@ -358,6 +363,7 @@ def compute_perturbative_dose_replay(
     dlg_nominal_mm: float = 1.4,
     leaf_width_mm: float = 5.0,
     n_sectors: int = 12,
+    use_heterogeneity: bool = True,
     return_arrays: bool = False,
 ) -> PerturbativeDoseImpact | PerturbativeReplayArrays:
     """Execute full 2D fluence -> 3D perturbative dose replay on real 3D patient anatomy.
@@ -486,8 +492,24 @@ def compute_perturbative_dose_replay(
         lr_mm = (active_idx[:, 1] - iso_idx[1]) * dy_mm
         si_mm = (active_idx[:, 2] - iso_idx[2]) * dz_mm
 
-        # Effective 6 MV linear attenuation in soft tissue (mm^-1)
+        # Effective 6 MV linear attenuation in water (mm^-1) + CT HU-to-rho_e heterogeneity scaling
         mu_eff = 0.0048
+        if use_heterogeneity:
+            rho_e_vol = ct_hu_to_relative_electron_density(anatomy.ct_hu)
+            # Smooth path-averaged relative electron density around each voxel (captures air/sinus/bone)
+            rho_e_path = gaussian_filter(rho_e_vol, sigma=1.8)
+            rho_active = np.clip(
+                rho_e_path[active_idx[:, 0], active_idx[:, 1], active_idx[:, 2]], 0.08, 2.2
+            )
+            rho_local = np.clip(
+                rho_e_vol[active_idx[:, 0], active_idx[:, 1], active_idx[:, 2]], 0.05, 2.2
+            )
+            # Electron disequilibrium buildup/scatter modulation in low-density air vs dense bone
+            het_scatter_mod = np.clip(0.88 + 0.12 * (rho_local**0.45), 0.72, 1.12)
+        else:
+            rho_active = np.ones(active_idx.shape[0], dtype=np.float64)
+            het_scatter_mod = np.ones(active_idx.shape[0], dtype=np.float64)
+
         # Reference central open-field planned fluence per sector
         mean_plan_fluence = max(float(np.percentile(fluence_plan_2d, 90)), 1e-6)
         n_active_sectors = max(len(sector_deltas), 1)
@@ -504,8 +526,9 @@ def compute_perturbative_dose_replay(
             v_bev = si_mm
 
             df_sampled = _bilinear_sample_2d(df_sector, u_mm, v_mm, u_bev, v_bev)
-            # Radiological depth modulation normalized at isocenter (d_bev = 0)
-            depth_factor = np.exp(-mu_eff * np.clip(d_bev, -65.0, 95.0))
+            # Radiological depth modulation scaled by local/path relative electron density rho_e
+            rad_depth = rho_active * np.clip(d_bev, -65.0, 95.0)
+            depth_factor = np.exp(-mu_eff * rad_depth)
             accum_rel_delta += (df_sampled / ref_sector_fluence) * depth_factor
 
         # Calibrated perturbative dose coupling: local dose sensitivity scaled by beam fluence &
@@ -516,7 +539,7 @@ def compute_perturbative_dose_replay(
             local_plan / max(0.35 * prescribed_ref_gy, 1e-6), 0.12, 1.0
         )
         # 1.85x modulation amplification reflects narrow-aperture VMAT MU/aperture-width sensitivity
-        delta_active = (1.85 / n_active_sectors) * accum_rel_delta * dose_envelope
+        delta_active = (1.85 / n_active_sectors) * accum_rel_delta * dose_envelope * het_scatter_mod
 
         delta_dose_3d[active_idx[:, 0], active_idx[:, 1], active_idx[:, 2]] = delta_active
         # Mild 3D lateral scatter kernel (sigma ~ 0.6 voxel ~ 2 mm)
@@ -629,7 +652,7 @@ def compute_perturbative_dose_replay(
 
     prov_tag = (
         "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG"
-        if anatomy.provenance_tag == "OPEN_PUBLIC_ANATOMY_OPENKBP_PT1"
+        if anatomy.provenance_tag.startswith("OPEN_PUBLIC_ANATOMY_OPENKBP_")
         and tensor.provenance.provenance_tag == "SYNTHETIC_FAULT_INJECTION_BENCHMARK"
         else tensor.provenance.provenance_tag
     )
@@ -639,6 +662,7 @@ def compute_perturbative_dose_replay(
             "dlg_nominal_mm": dlg_nominal_mm,
             "leaf_width_mm": leaf_width_mm,
             "n_sectors": n_sectors,
+            "use_heterogeneity": use_heterogeneity,
             "log_id": tensor.log_id,
         }
     )
@@ -648,7 +672,7 @@ def compute_perturbative_dose_replay(
         provenance_tag=prov_tag,  # type: ignore[arg-type]
         dataset_source=f"{anatomy.anatomy_source} + {tensor.provenance.dataset_source}",
         sha256_inputs=sha_inputs,
-        notes=f"Perturbative 2D->3D dose replay ({n_sectors} sectors); blindspot={gamma_blindspot}.",
+        notes=f"Perturbative 2D->3D dose replay ({n_sectors} sectors, het={use_heterogeneity}); blindspot={gamma_blindspot}.",
     )
 
     impact = PerturbativeDoseImpact(
@@ -668,6 +692,7 @@ def compute_perturbative_dose_replay(
         gamma_3d_3pct_2mm_pass_pct=round(gamma_3d_3_2, 3),
         gamma_3d_2pct_1mm_pass_pct=round(gamma_3d_2_1, 3),
         gamma_blindspot_detected=gamma_blindspot,
+        heterogeneity_corrected=use_heterogeneity,
         structure_shifts=structure_shifts,
         provenance=provenance,
     )

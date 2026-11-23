@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use linac-forensics in your research, please cite it using the metadata below."
 title: "linac-forensics: Closed-Loop Linac Telemetry, EPID & Perturbative 3D Delivery-Forensics Engine with Frontier Agent Harness & MCP Server"
-version: 0.1.0
+version: 0.2.0
 date-released: "2026-11-23"
 license: Apache-2.0
 type: software

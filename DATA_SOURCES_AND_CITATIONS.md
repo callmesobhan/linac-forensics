@@ -6,13 +6,13 @@
 
 ## 1. Real Open-Access Patient Anatomy Dataset
 
-| Dataset | Patient / Split | License | Upstream Repository | Provenance Tag |
+| Dataset | Patients / Split | License | Upstream Repository | Provenance Tags |
 | --- | --- | --- | --- | --- |
-| **OpenKBP** (AAPM 2020 Open-Access Knowledge-Based Planning Grand Challenge) | `pt_1` (`provided-data/train-pats/pt_1`, 128 × 128 × 128 CT, planned dose, PTV70/PTV63/PTV56, SpinalCord, Brainstem, LeftParotid, RightParotid, Mandible) | **CC BY 4.0** (dataset) / **MIT** (starter code) | `https://github.com/ababier/open-kbp` | `OPEN_PUBLIC_ANATOMY_OPENKBP_PT1` |
+| **OpenKBP** (AAPM 2020 Open-Access Knowledge-Based Planning Grand Challenge) | `pt_1`, `pt_2`, `pt_3` (`provided-data/train-pats/pt_{1,2,3}`, 128 × 128 × 128 CT HU, planned dose, PTV70/PTV63/PTV56, SpinalCord, Brainstem, LeftParotid, RightParotid, Mandible, Esophagus) | **CC BY 4.0** (dataset) / **MIT** (starter code) | `https://github.com/ababier/open-kbp` | `OPEN_PUBLIC_ANATOMY_OPENKBP_PT1`, `_PT2`, `_PT3` |
 
-- Local staged directory: `data/openkbp/pt_1/`
+- Local staged directories: `data/openkbp/pt_1/`, `data/openkbp/pt_2/`, `data/openkbp/pt_3/`
 - Verbatim upstream license: `data/openkbp/LICENSE`
-- Cryptographic manifest: `data/openkbp/pt_1/MANIFEST.json` (SHA-256 checksums for every CSV file)
+- Cryptographic manifests: `data/openkbp/pt_{1,2,3}/MANIFEST.json` (SHA-256 checksums for every CSV file)
 - Attribution statement: `data/openkbp/ATTRIBUTION.md`
 - Reproducible acquisition script: `scripts/fetch_openkbp_anatomy.py`
 

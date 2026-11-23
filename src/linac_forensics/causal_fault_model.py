@@ -2,14 +2,15 @@
 
 Research Software — NOT A MEDICAL DEVICE.
 
-Separates and quantifies four canonical radiotherapy linear accelerator failure modes
+Separates and quantifies five canonical radiotherapy linear accelerator failure modes
 from 20–50 Hz trajectory telemetry using matched-filter regression, orthogonal
 multi-channel standardization, and Bayesian Information Criterion (BIC/AIC) model selection:
 
-1. MLC Leaf Motor Friction / T-Nut Drag: velocity-proportional lag Δx_i(t) ≈ -τ_i * v_i(t).
-2. Systematic Bank / DLG Calibration Offset: constant aperture widening/narrowing Δgap = c.
-3. Gantry Gravity-Sag Harmonic: periodic encoder/head sag Δy(θ) = A sin(θ) + B cos(θ).
-4. Dose-Rate / Ion-Chamber Calibration Drift: multiplicative MU shift ΔMU / MU = δ.
+1. MLC Leaf Motor Friction / Viscous Drag: Δx_i(t) ≈ -τ_i * v_i(t).
+2. MLC Coulomb / Stribeck Stiction & Leadscrew Backlash: Δx_i(t) ≈ -β_i * tanh(v_i(t) / v_0).
+3. Systematic Bank / DLG Calibration Offset: constant aperture widening/narrowing Δgap = c.
+4. Gantry Gravity-Sag Harmonic: periodic encoder/head sag Δy(θ) = A sin(θ) + B cos(θ).
+5. Dose-Rate / Ion-Chamber Calibration Drift: multiplicative MU shift ΔMU / MU = δ.
 """
 
 from __future__ import annotations
@@ -29,6 +30,7 @@ from linac_forensics.provenance import build_provenance, sha256_json_payload
 _SIGMA_MLC_MM = 0.05
 _SIGMA_SAG_MM = 0.05
 _SIGMA_MU_REL = 0.002  # 0.2%
+_STRIBECK_V0_MM_S = 5.0
 
 
 def _gaussian_ic(rss: float, n_obs: int, k_params: int) -> tuple[float, float]:
@@ -67,30 +69,35 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
 
     # Identify active leaves (those that open or move during the arc)
     exp_gap = bank_a_exp - bank_b_exp
-    active_leaf_mask = (np.max(np.abs(exp_gap), axis=0) > 1.0) | (
-        np.ptp(bank_a_exp, axis=0) > 0.5
-    ) | (np.ptp(bank_b_exp, axis=0) > 0.5)
+    active_leaf_mask = (
+        (np.max(np.abs(exp_gap), axis=0) > 1.0)
+        | (np.ptp(bank_a_exp, axis=0) > 0.5)
+        | (np.ptp(bank_b_exp, axis=0) > 0.5)
+    )
     active_indices = np.where(active_leaf_mask)[0]
     if active_indices.size == 0:
         active_indices = np.arange(n_leaves)
 
-    # Residuals [N, L]
     err_a = bank_a_act - bank_a_exp
     err_b = bank_b_act - bank_b_exp
-
-    # Velocities [N, L] in mm/s
     vel_a = np.gradient(bank_a_exp, dt_s, axis=0)
     vel_b = np.gradient(bank_b_exp, dt_s, axis=0)
 
     # ------------------------------------------------------------------
-    # 1. Per-leaf velocity-proportional viscous drag matched filter
-    #    Model: err(t) = c_0 - tau * v(t)  (orthogonal to constant DLG shift)
+    # 1 & 2. Per-leaf joint Viscous Drag (-tau * v) + Coulomb Stiction (-beta * tanh(v/v0))
+    #        Model: err(t) = c_0 - tau * v(t) - beta * tanh(v(t) / v_0)
     # ------------------------------------------------------------------
     all_leaf_sigs: list[MLCFaultSignature] = []
+    flagged_viscous: list[MLCFaultSignature] = []
+    flagged_stiction: list[MLCFaultSignature] = []
     flagged_leaves: list[MLCFaultSignature] = []
-    best_leaf_pred_a = np.zeros_like(err_a)
-    best_leaf_pred_b = np.zeros_like(err_b)
-    max_leaf_snr = 0.0
+
+    best_visc_pred_a = np.zeros_like(err_a)
+    best_visc_pred_b = np.zeros_like(err_b)
+    best_stic_pred_a = np.zeros_like(err_a)
+    best_stic_pred_b = np.zeros_like(err_b)
+    max_visc_snr = 0.0
+    max_stic_snr = 0.0
 
     for bank_label, err_mat, vel_mat in (("A", err_a, vel_a), ("B", err_b, vel_b)):
         for l_idx in active_indices:
@@ -100,26 +107,35 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
             e_c = e - np.mean(e)
             v_ss = float(np.sum(v_c**2))
             if v_ss > 1e-6:
-                # slope of e vs (-v) is tau (seconds)
-                tau_s = float(np.sum(-v_c * e_c) / v_ss)
-                c0 = float(np.mean(e) + tau_s * np.mean(v))
-                res = e - (c0 - tau_s * v)
-                s2 = float(np.sum(res**2) / max(n_snap - 2, 1))
-                se_tau_s = float(np.sqrt(max(s2, 1e-12) / v_ss))
+                st_basis = np.tanh(v / _STRIBECK_V0_MM_S)
+                X = np.column_stack([np.ones(n_snap), -v, -st_basis])
+                beta_vec, *_ = np.linalg.lstsq(X, e, rcond=None)
+                c0, tau_s, stic_mm = float(beta_vec[0]), float(beta_vec[1]), float(beta_vec[2])
+                res = e - X @ beta_vec
+                s2 = float(np.sum(res**2) / max(n_snap - 3, 1))
+                cov = max(s2, 1e-12) * np.linalg.pinv(X.T @ X)
+                se_tau_s = float(np.sqrt(max(cov[1, 1], 1e-12)))
+                se_stic_mm = float(np.sqrt(max(cov[2, 2], 1e-12)))
                 denom_r = float(np.sqrt(v_ss * max(np.sum(e_c**2), 1e-18)))
                 r_corr = float(np.clip(np.sum(-v_c * e_c) / max(denom_r, 1e-12), -1.0, 1.0))
             else:
-                tau_s, c0, se_tau_s, r_corr = 0.0, float(np.mean(e)), 1e-3, 0.0
+                c0, tau_s, stic_mm = float(np.mean(e)), 0.0, 0.0
+                se_tau_s, se_stic_mm, r_corr = 1e-3, 1e-3, 0.0
+                st_basis = np.zeros_like(v)
 
             tau_ms = tau_s * 1000.0
             se_ms = se_tau_s * 1000.0
-            snr = abs(tau_ms) / max(se_ms, 0.25)
+            visc_snr = abs(tau_ms) / max(se_ms, 0.25)
+            stic_snr = abs(stic_mm) / max(se_stic_mm, 0.01)
             rms_mm = float(np.sqrt(np.mean(e**2)))
             max_mm = float(np.max(np.abs(e)))
-            # Detect localized leaf drag (strict threshold avoids false triggers on pure noise)
-            is_flagged = bool(
-                (abs(tau_ms) >= 8.0) and (snr >= 4.0) and (abs(r_corr) >= 0.45) and (rms_mm >= 0.08)
+
+            visc_hit = bool(
+                (abs(tau_ms) >= 8.0) and (visc_snr >= 4.0) and (abs(r_corr) >= 0.45) and (rms_mm >= 0.08)
             )
+            stic_hit = bool((abs(stic_mm) >= 0.15) and (stic_snr >= 5.0) and (rms_mm >= 0.08))
+            is_flagged = bool(visc_hit or stic_hit)
+
             sig = MLCFaultSignature(
                 bank=bank_label,  # type: ignore[arg-type]
                 leaf_index=int(l_idx + 1),
@@ -131,28 +147,47 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
                     round(tau_ms + 1.96 * se_ms, 3),
                 ),
                 velocity_correlation_r=round(r_corr, 4),
+                stiction_amplitude_mm=round(stic_mm, 4),
+                stiction_ci95_mm=(
+                    round(stic_mm - 1.96 * se_stic_mm, 4),
+                    round(stic_mm + 1.96 * se_stic_mm, 4),
+                ),
                 systematic_offset_mm=round(c0, 5),
                 is_flagged=is_flagged,
             )
             all_leaf_sigs.append(sig)
             if is_flagged:
                 flagged_leaves.append(sig)
-                max_leaf_snr = max(max_leaf_snr, snr)
+            if visc_hit:
+                flagged_viscous.append(sig)
+                max_visc_snr = max(max_visc_snr, visc_snr)
                 if bank_label == "A":
-                    best_leaf_pred_a[:, l_idx] = -tau_s * v
+                    best_visc_pred_a[:, l_idx] = -tau_s * v
                 else:
-                    best_leaf_pred_b[:, l_idx] = -tau_s * v
+                    best_visc_pred_b[:, l_idx] = -tau_s * v
+            if stic_hit:
+                flagged_stiction.append(sig)
+                max_stic_snr = max(max_stic_snr, stic_snr)
+                if bank_label == "A":
+                    best_stic_pred_a[:, l_idx] = -stic_mm * st_basis
+                else:
+                    best_stic_pred_b[:, l_idx] = -stic_mm * st_basis
 
-    flagged_leaves.sort(key=lambda s: abs(s.velocity_lag_ms), reverse=True)
-    # If none flagged, record highest SNR candidate for reporting
-    if not flagged_leaves and all_leaf_sigs:
-        top_cand = max(all_leaf_sigs, key=lambda s: abs(s.velocity_lag_ms))
-        ci_half = max((top_cand.velocity_lag_ci95_ms[1] - top_cand.velocity_lag_ci95_ms[0]) / 3.92, 0.25)
-        max_leaf_snr = abs(top_cand.velocity_lag_ms) / ci_half
+    flagged_leaves.sort(
+        key=lambda s: max(abs(s.velocity_lag_ms) / 10.0, abs(s.stiction_amplitude_mm) * 5.0),
+        reverse=True,
+    )
+    if not flagged_viscous and all_leaf_sigs:
+        top_v = max(all_leaf_sigs, key=lambda s: abs(s.velocity_lag_ms))
+        ci_half = max((top_v.velocity_lag_ci95_ms[1] - top_v.velocity_lag_ci95_ms[0]) / 3.92, 0.25)
+        max_visc_snr = abs(top_v.velocity_lag_ms) / ci_half
+    if not flagged_stiction and all_leaf_sigs:
+        top_s = max(all_leaf_sigs, key=lambda s: abs(s.stiction_amplitude_mm))
+        ci_half_s = max((top_s.stiction_ci95_mm[1] - top_s.stiction_ci95_mm[0]) / 3.92, 0.01)
+        max_stic_snr = abs(top_s.stiction_amplitude_mm) / ci_half_s
 
     # ------------------------------------------------------------------
-    # 2. Systematic Bank / DLG Calibration Offset (Δgap = c across active pairs)
-    #    Exclude flagged single-leaf outliers so friction does not bias DLG.
+    # 3. Systematic Bank / DLG Calibration Offset (Δgap = c across clean active pairs)
     # ------------------------------------------------------------------
     flagged_leaf_0 = {s.leaf_index - 1 for s in flagged_leaves}
     clean_active = np.array(
@@ -175,7 +210,7 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
     dlg_pred_b[:, active_indices] = -0.5 * dlg_est
 
     # ------------------------------------------------------------------
-    # 3. Gantry Gravity-Sag Harmonic: Δy(θ) = A sin(θ) + B cos(θ)
+    # 4. Gantry Gravity-Sag Harmonic: Δy(θ) = A sin(θ) + B cos(θ)
     # ------------------------------------------------------------------
     sag_obs = 0.5 * ((jaw_y1_act - jaw_y1_exp) + (jaw_y2_act - jaw_y2_exp))
     X_sag = np.column_stack([np.sin(theta_rad), np.cos(theta_rad)])
@@ -194,7 +229,7 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
     sag_detected = bool((sag_amp >= 0.10) and (sag_snr >= 4.0))
 
     # ------------------------------------------------------------------
-    # 4. Dose-Rate / Ion-Chamber Calibration Drift: ΔMU_act = (1 + δ) ΔMU_exp
+    # 5. Dose-Rate / Ion-Chamber Calibration Drift: ΔMU_act = (1 + δ) ΔMU_exp
     # ------------------------------------------------------------------
     dmu_exp = np.diff(mu_exp)
     dmu_act = np.diff(mu_act)
@@ -214,9 +249,8 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
     mu_detected = bool((abs(mu_drift_pct) >= 0.25) and (mu_snr >= 4.0))
 
     # ------------------------------------------------------------------
-    # 5. Unified Multi-Channel Standardized Residual Vector & BIC Selection
+    # 6. Unified Multi-Channel Standardized Residual Vector & BIC Selection
     # ------------------------------------------------------------------
-    # Sub-vectors normalized by clinical noise floors
     y_mlc_a = (err_a[:, active_indices] / _SIGMA_MLC_MM).ravel()
     y_mlc_b = (err_b[:, active_indices] / _SIGMA_MLC_MM).ravel()
     y_sag = sag_obs / _SIGMA_SAG_MM
@@ -251,11 +285,15 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
     rss_null = float(np.sum(y_all**2))
     aic_null, bic_null = _gaussian_ic(rss_null, n_obs, 0)
 
-    # Single-fault hypothesis predictions
-    pred_fric = _pack_pred(pa=best_leaf_pred_a, pb=best_leaf_pred_b)
+    pred_fric = _pack_pred(pa=best_visc_pred_a, pb=best_visc_pred_b)
     rss_fric = float(np.sum((y_all - pred_fric) ** 2))
-    k_fric = max(len(flagged_leaves), 1)
+    k_fric = max(len(flagged_viscous), 1)
     aic_fric, bic_fric = _gaussian_ic(rss_fric, n_obs, k_fric)
+
+    pred_stic = _pack_pred(pa=best_stic_pred_a, pb=best_stic_pred_b)
+    rss_stic = float(np.sum((y_all - pred_stic) ** 2))
+    k_stic = max(len(flagged_stiction), 1)
+    aic_stic, bic_stic = _gaussian_ic(rss_stic, n_obs, k_stic)
 
     pred_dlg = _pack_pred(pa=dlg_pred_a, pb=dlg_pred_b)
     rss_dlg = float(np.sum((y_all - pred_dlg) ** 2))
@@ -269,13 +307,21 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
     rss_mu = float(np.sum((y_all - pred_mu_v) ** 2))
     aic_mu, bic_mu = _gaussian_ic(rss_mu, n_obs, 1)
 
-    # Joint multi-fault model includes only physically active components
-    joint_pa = (best_leaf_pred_a if flagged_leaves else 0.0) + (dlg_pred_a if dlg_detected else 0.0)
-    joint_pb = (best_leaf_pred_b if flagged_leaves else 0.0) + (dlg_pred_b if dlg_detected else 0.0)
+    joint_pa = (
+        (best_visc_pred_a if flagged_viscous else 0.0)
+        + (best_stic_pred_a if flagged_stiction else 0.0)
+        + (dlg_pred_a if dlg_detected else 0.0)
+    )
+    joint_pb = (
+        (best_visc_pred_b if flagged_viscous else 0.0)
+        + (best_stic_pred_b if flagged_stiction else 0.0)
+        + (dlg_pred_b if dlg_detected else 0.0)
+    )
     joint_psag = sag_pred if sag_detected else np.zeros_like(sag_obs)
     joint_pmu = mu_delta if mu_detected else 0.0
     k_joint = (
-        len(flagged_leaves)
+        len(flagged_viscous)
+        + len(flagged_stiction)
         + (1 if dlg_detected else 0)
         + (2 if sag_detected else 0)
         + (1 if mu_detected else 0)
@@ -289,22 +335,37 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
     rss_joint = float(np.sum((y_all - pred_joint) ** 2))
     aic_joint, bic_joint = _gaussian_ic(rss_joint, n_obs, max(k_joint, 1))
 
-    top_leaf = flagged_leaves[0] if flagged_leaves else None
+    top_visc = flagged_viscous[0] if flagged_viscous else None
     fric_params: dict[str, float | int | str] = (
         {
-            "bank": top_leaf.bank,
-            "leaf_index": top_leaf.leaf_index,
-            "tau_ms": top_leaf.velocity_lag_ms,
-            "n_flagged_leaves": len(flagged_leaves),
+            "bank": top_visc.bank,
+            "leaf_index": top_visc.leaf_index,
+            "tau_ms": top_visc.velocity_lag_ms,
+            "n_flagged_leaves": len(flagged_viscous),
         }
-        if top_leaf
+        if top_visc
         else {"n_flagged_leaves": 0, "tau_ms": 0.0}
     )
-    fric_ci = {"tau_ms": top_leaf.velocity_lag_ci95_ms} if top_leaf else {}
+    fric_ci = {"tau_ms": top_visc.velocity_lag_ci95_ms} if top_visc else {}
+
+    top_stic = flagged_stiction[0] if flagged_stiction else None
+    stic_params: dict[str, float | int | str] = (
+        {
+            "bank": top_stic.bank,
+            "leaf_index": top_stic.leaf_index,
+            "stiction_mm": top_stic.stiction_amplitude_mm,
+            "n_flagged_leaves": len(flagged_stiction),
+        }
+        if top_stic
+        else {"n_flagged_leaves": 0, "stiction_mm": 0.0}
+    )
+    stic_ci = {"stiction_mm": top_stic.stiction_ci95_mm} if top_stic else {}
 
     active_faults: list[str] = []
-    if flagged_leaves:
+    if flagged_viscous:
         active_faults.append("MLC_LEAF_MOTOR_FRICTION")
+    if flagged_stiction:
+        active_faults.append("MLC_COULOMB_STICTION")
     if dlg_detected:
         active_faults.append("SYSTEMATIC_DLG_OFFSET")
     if sag_detected:
@@ -312,7 +373,20 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
     if mu_detected:
         active_faults.append("DOSE_RATE_ION_CHAMBER_DRIFT")
 
-    raw_hypotheses: list[tuple[str, str, dict[str, float | int | str], dict[str, tuple[float, float]], float, int, float, float, float, bool]] = [
+    raw_hypotheses: list[
+        tuple[
+            str,
+            str,
+            dict[str, float | int | str],
+            dict[str, tuple[float, float]],
+            float,
+            int,
+            float,
+            float,
+            float,
+            bool,
+        ]
+    ] = [
         (
             "NULL_NOMINAL",
             "Nominal electro-mechanical delivery (zero systematic faults).",
@@ -334,8 +408,20 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
             k_fric,
             aic_fric,
             bic_fric,
-            max_leaf_snr,
-            bool(flagged_leaves),
+            max_visc_snr,
+            bool(flagged_viscous),
+        ),
+        (
+            "MLC_COULOMB_STICTION",
+            "Nonlinear Coulomb/Stribeck stiction & leadscrew backlash: Δx_i(t) ≈ -β_i * tanh(v_i/v_0).",
+            stic_params,
+            stic_ci,
+            rss_stic,
+            k_stic,
+            aic_stic,
+            bic_stic,
+            max_stic_snr,
+            bool(flagged_stiction),
         ),
         (
             "SYSTEMATIC_DLG_OFFSET",
@@ -399,7 +485,6 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
         ),
     ]
 
-    # Include JOINT_MULTI_FAULT model when 2+ faults are simultaneously active
     if len(active_faults) >= 2:
         raw_hypotheses.append(
             (
@@ -419,11 +504,9 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
             )
         )
 
-    # Normalize BIC posterior weights cleanly with log-sum-exp stabilization
     bics = np.array([h[7] for h in raw_hypotheses], dtype=np.float64)
     min_bic = float(np.min(bics))
-    log_w = -0.5 * (bics - min_bic)
-    log_w = np.clip(log_w, -700.0, 0.0)
+    log_w = np.clip(-0.5 * (bics - min_bic), -700.0, 0.0)
     weights = np.exp(log_w)
     weights /= np.sum(weights)
 
@@ -446,10 +529,8 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
             )
         )
 
-    # Sort hypotheses by BIC ascending (best model first)
     hypotheses.sort(key=lambda item: item.bic)
 
-    # Determine primary root cause & service engineering recommendation
     if len(active_faults) == 0:
         primary_cause = "NULL_NOMINAL"
         residual_rms_mm = float(
@@ -467,35 +548,37 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
             "No systematic electro-mechanical faults detected; continue routine AAPM TG-142/MPC QA."
         )
     else:
-        primary_cause = (
-            "JOINT_MULTI_FAULT" if len(active_faults) >= 2 else active_faults[0]
+        primary_cause = "JOINT_MULTI_FAULT" if len(active_faults) >= 2 else active_faults[0]
+        res_mlc_a = err_a[:, active_indices] - (
+            joint_pa[:, active_indices] if isinstance(joint_pa, np.ndarray) else 0.0
         )
-        res_mlc_a = (
-            err_a[:, active_indices]
-            - (joint_pa[:, active_indices] if isinstance(joint_pa, np.ndarray) else 0.0)
-        )
-        res_mlc_b = (
-            err_b[:, active_indices]
-            - (joint_pb[:, active_indices] if isinstance(joint_pb, np.ndarray) else 0.0)
+        res_mlc_b = err_b[:, active_indices] - (
+            joint_pb[:, active_indices] if isinstance(joint_pb, np.ndarray) else 0.0
         )
         res_sag_mm = sag_obs - joint_psag
         residual_rms_mm = float(
             np.sqrt(
-                np.mean(
-                    np.concatenate([res_mlc_a.ravel(), res_mlc_b.ravel(), res_sag_mm]) ** 2
-                )
+                np.mean(np.concatenate([res_mlc_a.ravel(), res_mlc_b.ravel(), res_sag_mm]) ** 2)
             )
         )
         var_explained = float(
             np.clip(100.0 * (1.0 - rss_joint / max(rss_null, 1e-12)), 0.0, 100.0)
         )
         actions: list[str] = []
-        if flagged_leaves:
+        if flagged_viscous:
             leaf_desc = ", ".join(
                 f"Bank {s.bank} Leaf #{s.leaf_index} (τ={s.velocity_lag_ms:.1f} ms)"
-                for s in flagged_leaves[:3]
+                for s in flagged_viscous[:3]
             )
             actions.append(f"Inspect/replace MLC motor & T-nut assembly for {leaf_desc}")
+        if flagged_stiction:
+            st_desc = ", ".join(
+                f"Bank {s.bank} Leaf #{s.leaf_index} (β={s.stiction_amplitude_mm:.2f} mm)"
+                for s in flagged_stiction[:3]
+            )
+            actions.append(
+                f"Clean/re-seat MLC leadscrew & check backlash deadband on {st_desc}"
+            )
         if dlg_detected:
             actions.append(
                 f"Re-initialize MLC banks & recalibrate DLG (observed offset {dlg_est:+.3f} mm)"
@@ -520,7 +603,7 @@ def diagnose_causal_faults(tensor: TrajectoryLogTensor) -> CausalFaultDiagnosis:
                 {"primary": primary_cause, "active": active_faults}
             ),
         },
-        notes=f"BIC causal attribution across {n_obs} standardized telemetry observations.",
+        notes=f"BIC causal attribution across {n_obs} standardized observations (viscous + stiction + DLG + sag + MU).",
     )
 
     return CausalFaultDiagnosis(

@@ -43,9 +43,13 @@ def build_provenance(
     record_id: str,
     provenance_tag: Literal[
         "OPEN_PUBLIC_ANATOMY_OPENKBP_PT1",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_PT2",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_PT3",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_COHORT",
         "SYNTHETIC_FAULT_INJECTION_BENCHMARK",
         "SYNTHETIC_TG142_FLEET_DRIFT",
         "VENDOR_TRAJECTORY_LOG",
+        "EPID_THREE_WAY_FORENSICS",
         "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
     ],
     dataset_source: str,

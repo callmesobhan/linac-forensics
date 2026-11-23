@@ -22,20 +22,29 @@ from typing import Any
 
 import numpy as np
 
-from linac_forensics.anatomy import load_openkbp_patient
+from linac_forensics.anatomy import load_openkbp_cohort, load_openkbp_patient
 from linac_forensics.causal_fault_model import diagnose_causal_faults
+from linac_forensics.epid_forensics import (
+    analyze_three_way_epid_forensics,
+    simulate_measured_epid_image,
+)
 from linac_forensics.harness.agent_orchestrator import run_fleet_triage_investigation
-from linac_forensics.ir import PerturbativeDoseImpact
+from linac_forensics.ir import EPIDThreeWayForensicsReport, PerturbativeDoseImpact
 from linac_forensics.log_parser import (
     generate_synthetic_vmat_log,
     parse_varian_trajectory_bin,
     write_varian_trajectory_bin,
 )
 from linac_forensics.perturbative_dose import compute_perturbative_dose_replay
+from linac_forensics.predictive_rul import (
+    accumulate_multifraction_course,
+    forecast_tg142_kalman_rul,
+)
 from linac_forensics.sobol_sensitivity import run_delivery_sobol_sensitivity
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-OPENKBP_PT1 = REPO_ROOT / "data" / "openkbp" / "pt_1"
+OPENKBP_ROOT = REPO_ROOT / "data" / "openkbp"
+OPENKBP_PT1 = OPENKBP_ROOT / "pt_1"
 RESULTS_DIR = REPO_ROOT / "results"
 
 
@@ -204,9 +213,11 @@ def run_all_benchmarks() -> dict[str, Any]:
         if c["clinically_unacceptable"] and c["gamma_3d_2pct_1mm"] < 95.0
     )
 
-    # 5. Autonomous Fleet Physicist & Incident-Triage Harness
+    # 5. Autonomous Fleet Physicist & Incident-Triage Harness across real OpenKBP pt_1, pt_2, pt_3
+    openkbp_cohort = load_openkbp_cohort(OPENKBP_ROOT, verify_manifest=True)
     ledger = run_fleet_triage_investigation(
         anatomy=anatomy,
+        anatomy_cohort=openkbp_cohort,
         machine_id="TrueBeam-01",
         incident_id="INC-TB01-WK47",
         output_dir=RESULTS_DIR,
@@ -216,6 +227,48 @@ def run_all_benchmarks() -> dict[str, Any]:
     t3 = time.perf_counter()
     sobol_reports = run_delivery_sobol_sensitivity(anatomy, n_base_samples=512, seed=42)
     sobol_s = time.perf_counter() - t3
+
+    # 7. v0.2.0 Benchmarks: Three-Way EPID Forensics, Coulomb Stiction, Kalman RUL & Multi-Fraction
+    log_nom_epid = generate_synthetic_vmat_log(log_id="EPID_SILENT_BENCH", n_snapshots=180)
+    _, _, epid_silent = simulate_measured_epid_image(
+        log_nom_epid, silent_dlg_bias_mm=+1.6, silent_leaf_slip_mm=3.5, noise_rel_sigma=0.0015
+    )
+    epid_report = analyze_three_way_epid_forensics(log_nom_epid, epid_silent)
+    assert isinstance(epid_report, EPIDThreeWayForensicsReport)
+
+    log_stic = generate_synthetic_vmat_log(
+        log_id="STICTION_BENCH",
+        n_snapshots=300,
+        failing_bank="B",
+        failing_leaf_index=32,
+        leaf_drag_ms=0.0,
+        leaf_stiction_mm=0.70,
+        noise_sigma_mm=0.02,
+        seed=51,
+    )
+    diag_stic = diagnose_causal_faults(log_stic)
+
+    rul_tb01 = forecast_tg142_kalman_rul(
+        ledger.tg142_trends[0],
+        metric_name="mlc_max_rms_mm",
+        action_limit=0.70,
+        observation_cutoff_day=20,
+        horizon_days=10,
+    )
+
+    fx_logs = [
+        generate_synthetic_vmat_log(
+            log_id=f"PT2_FX{i + 1}",
+            patient_id="pt_2",
+            n_snapshots=120,
+            dlg_offset_mm=-0.85 + 0.05 * (i - 2),
+            seed=90 + i,
+        )
+        for i in range(5)
+    ]
+    multifx_rep = accumulate_multifraction_course(
+        fx_logs, openkbp_cohort["pt_2"], total_prescribed_fractions=35, n_sectors=8
+    )
 
     summary: dict[str, Any] = {
         "research_notice": "Research Software — NOT A MEDICAL DEVICE",
@@ -257,6 +310,20 @@ def run_all_benchmarks() -> dict[str, Any]:
         "sobol_sensitivity": {
             "runtime_s": round(sobol_s, 2),
             "reports": {k: v.model_dump() for k, v in sobol_reports.items()},
+        },
+        "v02_upgrades": {
+            "openkbp_cohort_patients": sorted(openkbp_cohort.keys()),
+            "epid_three_way_silent_fault": epid_report.model_dump(),
+            "coulomb_stiction_recovery": {
+                "primary_root_cause": diag_stic.primary_root_cause,
+                "injected_stiction_mm": 0.70,
+                "recovered_stiction_mm": diag_stic.flagged_leaves[0].stiction_amplitude_mm
+                if diag_stic.flagged_leaves
+                else 0.0,
+                "variance_explained_pct": diag_stic.variance_explained_pct,
+            },
+            "kalman_rul_forecast_day20": rul_tb01.model_dump(),
+            "multifraction_accumulation_pt2": multifx_rep.model_dump(),
         },
     }
     out_path = RESULTS_DIR / "benchmark_summary.json"

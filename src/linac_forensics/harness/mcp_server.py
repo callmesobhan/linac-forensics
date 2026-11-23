@@ -2,7 +2,8 @@
 
 Research Software — NOT A MEDICAL DEVICE.
 
-Exposes 6 strictly typed, provenance-gated medical physics forensics tools over
+Exposes 8 strictly typed, provenance-gated medical physics forensics tools and
+live read-only forensic resources (`resources/list`, `resources/read`) over
 newline-delimited JSON-RPC 2.0 stdio transport:
   1. `linac_parse_trajectory_log`
   2. `linac_compute_perturbative_dvh`
@@ -10,6 +11,8 @@ newline-delimited JSON-RPC 2.0 stdio transport:
   4. `linac_compare_gamma_vs_dvh`
   5. `linac_triage_patient_fleet`
   6. `linac_run_sobol_sensitivity`
+  7. `linac_analyze_epid_three_way`
+  8. `linac_forecast_tg142_rul`
 """
 
 from __future__ import annotations
@@ -23,11 +26,24 @@ from linac_forensics import __version__
 from linac_forensics.anatomy import (
     PatientAnatomyVolume,
     build_synthetic_phantom_anatomy,
+    load_openkbp_cohort,
     load_openkbp_patient,
 )
 from linac_forensics.causal_fault_model import diagnose_causal_faults
-from linac_forensics.harness.agent_orchestrator import run_fleet_triage_investigation
-from linac_forensics.ir import AbstentionError, PerturbativeDoseImpact, TrajectoryLogTensor
+from linac_forensics.epid_forensics import (
+    analyze_three_way_epid_forensics,
+    simulate_measured_epid_image,
+)
+from linac_forensics.harness.agent_orchestrator import (
+    generate_tg142_fleet_trends,
+    run_fleet_triage_investigation,
+)
+from linac_forensics.ir import (
+    AbstentionError,
+    EPIDThreeWayForensicsReport,
+    PerturbativeDoseImpact,
+    TrajectoryLogTensor,
+)
 from linac_forensics.log_parser import (
     generate_synthetic_vmat_log,
     parse_telemetry_csv,
@@ -35,9 +51,11 @@ from linac_forensics.log_parser import (
     parse_varian_trajectory_bin,
 )
 from linac_forensics.perturbative_dose import compute_perturbative_dose_replay
+from linac_forensics.predictive_rul import forecast_tg142_kalman_rul
 from linac_forensics.sobol_sensitivity import run_delivery_sobol_sensitivity
 
 MCP_PROTOCOL_VERSION = "2024-11-05"
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 TOOL_SPECS: list[dict[str, Any]] = [
     {
@@ -58,18 +76,16 @@ TOOL_SPECS: list[dict[str, Any]] = [
     {
         "name": "linac_compute_perturbative_dvh",
         "description": (
-            "Run fast 2D fluence -> 3D perturbative dose replay on OpenKBP pt_1 or phantom anatomy "
-            "and compute exact structure-specific ΔD95, ΔD0.03cc, ΔgEUD, ΔTCP/NTCP, and 2D/3D Gamma."
+            "Run heterogeneity-aware 2D fluence -> 3D perturbative dose replay on OpenKBP or phantom "
+            "anatomy and compute ΔD95, ΔD0.03cc, ΔgEUD, ΔTCP/NTCP, and 2D/3D Gamma."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
-                "file_path": {"type": "string", "description": "Optional trajectory log file path (.bin/.json/.csv)."},
-                "anatomy_dir": {"type": "string", "description": "Optional OpenKBP patient directory (defaults to phantom if omitted)."},
-                "synthetic_faults": {
-                    "type": "object",
-                    "description": "Optional synthetic fault injection parameters when file_path is omitted.",
-                },
+                "file_path": {"type": "string"},
+                "anatomy_dir": {"type": "string"},
+                "use_heterogeneity": {"type": "boolean", "default": True},
+                "synthetic_faults": {"type": "object"},
             },
         },
     },
@@ -77,13 +93,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
         "name": "linac_diagnose_causal_fault",
         "description": (
             "Perform physics-informed matched-filter & Bayesian BIC causal attribution separating "
-            "MLC leaf viscous drag, systematic DLG offset, gantry gravity sag, and MU drift."
+            "MLC viscous drag, Coulomb stiction/backlash, DLG offset, gravity sag, and MU drift."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
-                "file_path": {"type": "string", "description": "Optional path to .bin/.json/.csv trajectory log."},
-                "synthetic_faults": {"type": "object", "description": "Optional synthetic fault config."},
+                "file_path": {"type": "string"},
+                "synthetic_faults": {"type": "object"},
             },
         },
     },
@@ -96,12 +112,8 @@ TOOL_SPECS: list[dict[str, Any]] = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "anatomy_dir": {"type": "string", "description": "Optional OpenKBP patient directory."},
-                "dlg_offsets_mm": {
-                    "type": "array",
-                    "items": {"type": "number"},
-                    "description": "List of DLG offsets (mm) to evaluate.",
-                },
+                "anatomy_dir": {"type": "string"},
+                "dlg_offsets_mm": {"type": "array", "items": {"type": "number"}},
                 "leaf_drag_ms": {"type": "number", "default": 30.0},
             },
         },
@@ -110,12 +122,12 @@ TOOL_SPECS: list[dict[str, Any]] = [
         "name": "linac_triage_patient_fleet",
         "description": (
             "Run the Autonomous Fleet Physicist & Incident-Triage Harness across a multi-patient "
-            "treatment week and 30-day TG-142/MPC fleet trend series with Critic-Verifier Gate."
+            "OpenKBP cohort and 30-day TG-142/MPC trend series with Kalman RUL & Critic-Verifier Gate."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
-                "anatomy_dir": {"type": "string", "description": "Optional OpenKBP patient directory."},
+                "anatomy_dir": {"type": "string"},
                 "machine_id": {"type": "string", "default": "TrueBeam-01"},
                 "incident_id": {"type": "string", "default": "INC-TB01-MCP"},
             },
@@ -130,11 +142,76 @@ TOOL_SPECS: list[dict[str, Any]] = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "anatomy_dir": {"type": "string", "description": "Optional OpenKBP patient directory."},
+                "anatomy_dir": {"type": "string"},
                 "n_base_samples": {"type": "integer", "default": 128, "minimum": 16, "maximum": 2048},
                 "seed": {"type": "integer", "default": 42},
             },
         },
+    },
+    {
+        "name": "linac_analyze_epid_three_way",
+        "description": (
+            "Closed-loop three-way TPS vs Trajectory-Log vs Deconvolved EPID portal dosimetry "
+            "forensics detecting encoder-blind silent hardware faults and beam steering tilts."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "file_path": {"type": "string"},
+                "synthetic_faults": {"type": "object"},
+                "silent_dlg_bias_mm": {"type": "number", "default": 0.0},
+                "silent_leaf_slip_mm": {"type": "number", "default": 0.0},
+                "beam_tilt_x_pct_per_10cm": {"type": "number", "default": 0.0},
+            },
+        },
+    },
+    {
+        "name": "linac_forecast_tg142_rul",
+        "description": (
+            "Run Local-Linear-Trend Kalman state-space forecasting over multi-day AAPM TG-142/MPC "
+            "QA trends to predict Remaining Useful Life (RUL) and 95% credible breach envelopes."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "machine_id": {"type": "string", "default": "TrueBeam-01"},
+                "metric_name": {
+                    "type": "string",
+                    "enum": ["mlc_max_rms_mm", "dlg_offset_mm", "gantry_sag_amp_mm", "output_drift_pct"],
+                    "default": "mlc_max_rms_mm",
+                },
+                "action_limit": {"type": "number", "default": 0.70},
+                "observation_cutoff_day": {"type": "integer", "default": 20},
+                "horizon_days": {"type": "integer", "default": 10},
+            },
+        },
+    },
+]
+
+RESOURCE_CATALOG: list[dict[str, Any]] = [
+    {
+        "uri": "linac://manifest/openkbp_pt1",
+        "name": "OpenKBP pt_1 Cryptographic SHA-256 Manifest",
+        "mimeType": "application/json",
+        "path": REPO_ROOT / "data" / "openkbp" / "pt_1" / "MANIFEST.json",
+    },
+    {
+        "uri": "linac://results/benchmark_summary",
+        "name": "linac-forensics Quantitative Benchmark Summary",
+        "mimeType": "application/json",
+        "path": REPO_ROOT / "results" / "benchmark_summary.json",
+    },
+    {
+        "uri": "linac://results/incident_report",
+        "name": "Autonomous Fleet Physicist Markdown Incident Ledger",
+        "mimeType": "text/markdown",
+        "path": REPO_ROOT / "results" / "INC-TB01-WK47_report.md",
+    },
+    {
+        "uri": "linac://docs/audit_report",
+        "name": "Independent Technical & Scientific Audit Report",
+        "mimeType": "text/markdown",
+        "path": REPO_ROOT / "docs" / "AUDIT_REPORT.md",
     },
 ]
 
@@ -160,6 +237,7 @@ def _load_log_from_args(args: dict[str, Any]) -> TrajectoryLogTensor:
         failing_bank=str(sf.get("failing_bank", "B")),  # type: ignore[arg-type]
         failing_leaf_index=int(sf.get("failing_leaf_index", 34)),
         leaf_drag_ms=float(sf.get("leaf_drag_ms", 0.0)),
+        leaf_stiction_mm=float(sf.get("leaf_stiction_mm", 0.0)),
         dlg_offset_mm=float(sf.get("dlg_offset_mm", 0.0)),
         gantry_sag_sin_mm=float(sf.get("gantry_sag_sin_mm", 0.0)),
         gantry_sag_cos_mm=float(sf.get("gantry_sag_cos_mm", 0.0)),
@@ -173,7 +251,7 @@ def _load_anatomy_from_args(args: dict[str, Any]) -> PatientAnatomyVolume:
     anatomy_dir = args.get("anatomy_dir")
     if anatomy_dir:
         return load_openkbp_patient(anatomy_dir)
-    default_openkbp = Path(__file__).resolve().parents[3] / "data" / "openkbp" / "pt_1"
+    default_openkbp = REPO_ROOT / "data" / "openkbp" / "pt_1"
     if default_openkbp.exists():
         return load_openkbp_patient(default_openkbp)
     return build_synthetic_phantom_anatomy()
@@ -201,7 +279,10 @@ def dispatch_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     if name == "linac_compute_perturbative_dvh":
         tensor = _load_log_from_args(arguments)
         anatomy = _load_anatomy_from_args(arguments)
-        impact = compute_perturbative_dose_replay(tensor, anatomy, n_sectors=12)
+        use_het = bool(arguments.get("use_heterogeneity", True))
+        impact = compute_perturbative_dose_replay(
+            tensor, anatomy, n_sectors=12, use_heterogeneity=use_het
+        )
         assert isinstance(impact, PerturbativeDoseImpact)
         return impact.model_dump()
 
@@ -249,10 +330,17 @@ def dispatch_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
 
     if name == "linac_triage_patient_fleet":
         anatomy = _load_anatomy_from_args(arguments)
+        openkbp_root = REPO_ROOT / "data" / "openkbp"
+        anat_cohort = (
+            load_openkbp_cohort(openkbp_root)
+            if not arguments.get("anatomy_dir") and openkbp_root.exists()
+            else None
+        )
         machine_id = str(arguments.get("machine_id", "TrueBeam-01"))
         incident_id = str(arguments.get("incident_id", "INC-TB01-MCP"))
         ledger = run_fleet_triage_investigation(
             anatomy=anatomy,
+            anatomy_cohort=anat_cohort,
             machine_id=machine_id,
             incident_id=incident_id,
         )
@@ -264,6 +352,31 @@ def dispatch_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         seed = int(arguments.get("seed", 42))
         reports = run_delivery_sobol_sensitivity(anatomy, n_base_samples=n_base, seed=seed)
         return {k: v.model_dump() for k, v in reports.items()}
+
+    if name == "linac_analyze_epid_three_way":
+        tensor = _load_log_from_args(arguments)
+        _, _, epid_img = simulate_measured_epid_image(
+            tensor,
+            silent_dlg_bias_mm=float(arguments.get("silent_dlg_bias_mm", 0.0)),
+            silent_leaf_slip_mm=float(arguments.get("silent_leaf_slip_mm", 0.0)),
+            beam_tilt_x_pct_per_10cm=float(arguments.get("beam_tilt_x_pct_per_10cm", 0.0)),
+        )
+        rep = analyze_three_way_epid_forensics(tensor, epid_img)
+        assert isinstance(rep, EPIDThreeWayForensicsReport)
+        return rep.model_dump()
+
+    if name == "linac_forecast_tg142_rul":
+        trends = generate_tg142_fleet_trends()
+        machine_id = str(arguments.get("machine_id", "TrueBeam-01"))
+        target = next((t for t in trends if t.machine_id == machine_id), trends[0])
+        forecast = forecast_tg142_kalman_rul(
+            target,
+            metric_name=str(arguments.get("metric_name", "mlc_max_rms_mm")),
+            action_limit=float(arguments.get("action_limit", 0.70)),
+            observation_cutoff_day=int(arguments.get("observation_cutoff_day", 20)),
+            horizon_days=int(arguments.get("horizon_days", 10)),
+        )
+        return forecast.model_dump()
 
     raise KeyError(f"Unknown MCP tool: {name}")
 
@@ -286,7 +399,7 @@ def handle_jsonrpc_request(request: dict[str, Any]) -> dict[str, Any] | None:
             "id": req_id,
             "result": {
                 "protocolVersion": MCP_PROTOCOL_VERSION,
-                "capabilities": {"tools": {}},
+                "capabilities": {"tools": {}, "resources": {}},
                 "serverInfo": {
                     "name": "linac-forensics-mcp",
                     "version": __version__,
@@ -297,6 +410,34 @@ def handle_jsonrpc_request(request: dict[str, Any]) -> dict[str, Any] | None:
 
     if method == "tools/list":
         return {"jsonrpc": "2.0", "id": req_id, "result": {"tools": TOOL_SPECS}}
+
+    if method == "resources/list":
+        resources = [
+            {"uri": r["uri"], "name": r["name"], "mimeType": r["mimeType"]}
+            for r in RESOURCE_CATALOG
+            if Path(r["path"]).exists()
+        ]
+        return {"jsonrpc": "2.0", "id": req_id, "result": {"resources": resources}}
+
+    if method == "resources/read":
+        uri = params.get("uri", "")
+        entry = next((r for r in RESOURCE_CATALOG if r["uri"] == uri), None)
+        if entry is None or not Path(entry["path"]).exists():
+            return {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "error": {"code": -32002, "message": f"Resource not found: {uri}"},
+            }
+        text = Path(entry["path"]).read_text(encoding="utf-8")
+        return {
+            "jsonrpc": "2.0",
+            "id": req_id,
+            "result": {
+                "contents": [
+                    {"uri": entry["uri"], "mimeType": entry["mimeType"], "text": text}
+                ]
+            },
+        }
 
     if method == "tools/call":
         tool_name = params.get("name", "")
@@ -363,8 +504,11 @@ def main() -> None:
 
         resp = handle_jsonrpc_request(req)
         if resp is not None:
-            sys.stdout.write(json.dumps(resp) + "\n")
-            sys.stdout.flush()
+            try:
+                sys.stdout.write(json.dumps(resp) + "\n")
+                sys.stdout.flush()
+            except BrokenPipeError:
+                return
 
 
 if __name__ == "__main__":

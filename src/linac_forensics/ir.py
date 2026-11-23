@@ -53,14 +53,18 @@ class ProvenanceRecord(BaseModel):
     record_id: str = Field(..., min_length=1)
     provenance_tag: Literal[
         "OPEN_PUBLIC_ANATOMY_OPENKBP_PT1",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_PT2",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_PT3",
+        "OPEN_PUBLIC_ANATOMY_OPENKBP_COHORT",
         "SYNTHETIC_FAULT_INJECTION_BENCHMARK",
         "SYNTHETIC_TG142_FLEET_DRIFT",
         "VENDOR_TRAJECTORY_LOG",
+        "EPID_THREE_WAY_FORENSICS",
         "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
     ]
     dataset_source: str = Field(..., min_length=1)
     sha256_inputs: dict[str, str] = Field(default_factory=dict)
-    engine_version: str = Field(default="0.1.0")
+    engine_version: str = Field(default="0.2.0")
     research_notice: str = Field(default="Research Software — NOT A MEDICAL DEVICE")
     created_utc: str = Field(
         default_factory=lambda: datetime.now(UTC).isoformat()
@@ -111,7 +115,7 @@ class TrajectoryLogTensor(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     log_id: str = Field(..., min_length=1)
-    header_version: Literal["3.0", "4.0", "5.0", "JSON-1.0", "CSV-1.0"] = "5.0"
+    header_version: Literal["3.0", "4.0", "5.0", "DYNALOG-B", "JSON-1.0", "CSV-1.0"] = "5.0"
     machine_id: str = Field(default="TrueBeam-01")
     patient_id: str = Field(default="pt_1")
     plan_id: str = Field(default="VMAT_HN_70Gy")
@@ -152,6 +156,10 @@ class MLCFaultSignature(BaseModel):
     velocity_lag_ms: float = Field(..., description="Estimated viscous drag time constant tau (ms).")
     velocity_lag_ci95_ms: tuple[float, float]
     velocity_correlation_r: float = Field(..., ge=-1.0, le=1.0)
+    stiction_amplitude_mm: float = Field(
+        default=0.0, description="Estimated Coulomb/Stribeck direction-reversal stiction beta (mm)."
+    )
+    stiction_ci95_mm: tuple[float, float] = Field(default=(0.0, 0.0))
     systematic_offset_mm: float
     is_flagged: bool
 
@@ -201,6 +209,7 @@ class PerturbativeDoseImpact(BaseModel):
     gamma_3d_3pct_2mm_pass_pct: float = Field(..., ge=0.0, le=100.0)
     gamma_3d_2pct_1mm_pass_pct: float = Field(..., ge=0.0, le=100.0)
     gamma_blindspot_detected: bool
+    heterogeneity_corrected: bool = Field(default=True)
     structure_shifts: list[StructureDVHShift]
     provenance: ProvenanceRecord
 
@@ -213,6 +222,7 @@ class FaultHypothesisResult(BaseModel):
     fault_type: Literal[
         "NULL_NOMINAL",
         "MLC_LEAF_MOTOR_FRICTION",
+        "MLC_COULOMB_STICTION",
         "SYSTEMATIC_DLG_OFFSET",
         "GANTRY_GRAVITY_SAG_HARMONIC",
         "DOSE_RATE_ION_CHAMBER_DRIFT",
@@ -307,4 +317,71 @@ class SobolSensitivityReport(BaseModel):
     s1_ci95: dict[str, tuple[float, float]]
     st_ci95: dict[str, tuple[float, float]]
     interaction_index: dict[str, float]
+    provenance: ProvenanceRecord
+
+
+class EPIDThreeWayForensicsReport(BaseModel):
+    """Closed-loop three-way comparison: Planned TPS vs Trajectory Log vs Measured EPID."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    log_id: str
+    machine_id: str
+    classification: Literal[
+        "CONCORDANT_NOMINAL",
+        "LOG_VERIFIED_MECHANICAL_FAULT",
+        "ENCODER_BLIND_SILENT_FAULT",
+        "EPID_CALIBRATION_OR_PANEL_DRIFT",
+    ]
+    encoder_blind_fault_detected: bool
+    gamma_plan_vs_log_2pct_1mm: float = Field(..., ge=0.0, le=100.0)
+    gamma_plan_vs_epid_2pct_1mm: float = Field(..., ge=0.0, le=100.0)
+    gamma_log_vs_epid_2pct_1mm: float = Field(..., ge=0.0, le=100.0)
+    rms_epid_minus_log_pct: float = Field(..., ge=0.0)
+    max_epid_minus_log_pct: float = Field(..., ge=0.0)
+    inplane_symmetry_tilt_pct: float
+    crossplane_symmetry_tilt_pct: float
+    inferred_silent_fault_summary: str
+    provenance: ProvenanceRecord
+
+
+class KalmanRULForecast(BaseModel):
+    """Kalman state-space trend & Remaining-Useful-Life (RUL) forecast before TG-142 breach."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    machine_id: str
+    metric_name: str
+    action_limit: float
+    observation_cutoff_day: int
+    horizon_days: int
+    forecast_days: list[int]
+    forecast_mean: list[float]
+    forecast_ci95_low: list[float]
+    forecast_ci95_high: list[float]
+    estimated_drift_rate_per_day: float
+    rul_mean_days: float | None = None
+    rul_ci95_days: tuple[float, float] | None = None
+    breach_probability_within_horizon: float = Field(..., ge=0.0, le=1.0)
+    maintenance_recommendation: str
+    provenance: ProvenanceRecord
+
+
+class MultiFractionAccumulationReport(BaseModel):
+    """Multi-fraction cumulative 3D dose accumulation separating systematic vs random error."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    patient_id: str
+    plan_id: str
+    anatomy_source: str
+    fractions_delivered: int = Field(..., ge=1)
+    total_prescribed_fractions: int = Field(..., ge=1)
+    cumulative_ptv_delta_d95_pct: float
+    systematic_component_pct: float
+    random_component_rms_pct: float
+    cumulative_critical_oar_delta_d003cc_gy: float
+    critical_oar_name: str
+    recommended_remaining_fx_mu_scale: float
+    adaptive_replan_triggered: bool
     provenance: ProvenanceRecord

@@ -23,8 +23,14 @@ from matplotlib.patches import Patch, Rectangle
 
 from linac_forensics.anatomy import load_openkbp_patient
 from linac_forensics.causal_fault_model import diagnose_causal_faults
+from linac_forensics.epid_forensics import (
+    EPIDThreeWayArrays,
+    analyze_three_way_epid_forensics,
+    simulate_measured_epid_image,
+)
 from linac_forensics.harness.agent_orchestrator import (
     TG142_LIMITS,
+    generate_tg142_fleet_trends,
     run_fleet_triage_investigation,
 )
 from linac_forensics.log_parser import generate_synthetic_vmat_log
@@ -32,6 +38,7 @@ from linac_forensics.perturbative_dose import (
     PerturbativeReplayArrays,
     compute_perturbative_dose_replay,
 )
+from linac_forensics.predictive_rul import forecast_tg142_kalman_rul
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OPENKBP_PT1 = REPO_ROOT / "data" / "openkbp" / "pt_1"
@@ -842,6 +849,143 @@ def make_fig6_sobol_sensitivity(summary: dict) -> None:
     )
 
 
+def make_fig7_epid_stiction_kalman_rul() -> None:
+    """Fig 7: Three-Way EPID Silent Fault Map, Viscous vs Coulomb Stiction, and Kalman RUL Forecast."""
+    fig = plt.figure(figsize=(14.8, 4.9))
+    gs = fig.add_gridspec(
+        1, 3, width_ratios=[1.12, 1.08, 1.20], wspace=0.32, left=0.055, right=0.97, top=0.84, bottom=0.17
+    )
+
+    # Panel A: Three-Way EPID minus Trajectory-Log Discrepancy catching Encoder-Blind Silent Fault
+    ax1 = fig.add_subplot(gs[0, 0])
+    _panel_label(ax1, "A")
+    log_nom = generate_synthetic_vmat_log(log_id="FIG7_SILENT", n_snapshots=180)
+    _, _, epid_img = simulate_measured_epid_image(
+        log_nom, silent_dlg_bias_mm=+1.6, silent_leaf_slip_mm=3.5, silent_leaf_index=34, noise_rel_sigma=0.0015
+    )
+    arr = analyze_three_way_epid_forensics(log_nom, epid_img, return_arrays=True)
+    assert isinstance(arr, EPIDThreeWayArrays)
+
+    vlim = max(5.0, float(np.percentile(np.abs(arr.delta_epid_minus_log_pct), 99.5)))
+    im1 = ax1.imshow(
+        arr.delta_epid_minus_log_pct,
+        origin="lower",
+        extent=[float(arr.u_mm[0]), float(arr.u_mm[-1]), float(arr.v_mm[0]), float(arr.v_mm[-1])],
+        cmap="RdBu_r",
+        vmin=-vlim,
+        vmax=vlim,
+        aspect="equal",
+    )
+    c1 = fig.colorbar(im1, ax=ax1, fraction=0.046, pad=0.03)
+    c1.set_label("EPID − Log Fluence (%)", fontsize=8.4)
+    ax1.annotate(
+        "Encoder-blind slip\n(Leaf #34 +1.6 mm DLG)",
+        xy=(-18, 17),
+        xytext=(-74, 48),
+        fontsize=7.6,
+        fontweight="bold",
+        color="#9B2C00",
+        bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": OI["vermillion"], "alpha": 0.94},
+        arrowprops={"arrowstyle": "->", "color": OI["vermillion"], "lw": 1.3},
+    )
+    ax1.text(
+        0.03,
+        0.03,
+        f"Plan vs Log γ: {arr.report.gamma_plan_vs_log_2pct_1mm:.0f}% (blind)\n"
+        f"Log vs EPID γ: {arr.report.gamma_log_vs_epid_2pct_1mm:.1f}% (caught)",
+        transform=ax1.transAxes,
+        fontsize=7.5,
+        va="bottom",
+        bbox={"boxstyle": "round,pad=0.25", "facecolor": "#F8F9FA", "edgecolor": "#BBBBBB", "alpha": 0.94},
+    )
+    ax1.set_title("Three-Way EPID Silent Fault Map")
+    ax1.set_xlabel("Cross-Plane u (mm)")
+    ax1.set_ylabel("In-Plane v (mm)")
+    ax1.grid(False)
+
+    # Panel B: Nonlinear Coulomb/Stribeck Stiction vs Linear Viscous Drag Phase Plane
+    ax2 = fig.add_subplot(gs[0, 1])
+    _panel_label(ax2, "B")
+    log_v = generate_synthetic_vmat_log(
+        log_id="FIG7_VISC", n_snapshots=240, failing_bank="B", failing_leaf_index=34, leaf_drag_ms=32.0, noise_sigma_mm=0.025, seed=10
+    )
+    log_s = generate_synthetic_vmat_log(
+        log_id="FIG7_STIC", n_snapshots=240, failing_bank="B", failing_leaf_index=34, leaf_stiction_mm=0.75, noise_sigma_mm=0.025, seed=11
+    )
+    dt_s = log_v.sampling_interval_ms / 1000.0
+    v_vel = np.gradient(np.asarray(log_v.bank_b_expected_mm)[:, 33], dt_s)
+    e_visc = np.asarray(log_v.bank_b_actual_mm)[:, 33] - np.asarray(log_v.bank_b_expected_mm)[:, 33]
+    e_stic = np.asarray(log_s.bank_b_actual_mm)[:, 33] - np.asarray(log_s.bank_b_expected_mm)[:, 33]
+    d_stic = diagnose_causal_faults(log_s)
+    beta_hat = d_stic.flagged_leaves[0].stiction_amplitude_mm
+
+    ax2.scatter(v_vel, e_visc, s=14, alpha=0.45, color=OI["blue"], label="Viscous Drag (τ = 32 ms, linear)")
+    ax2.scatter(v_vel, e_stic, s=16, alpha=0.65, color=OI["vermillion"], label=f"Coulomb Stiction (β̂ = {beta_hat:.2f} mm)")
+    v_grid = np.linspace(float(v_vel.min()), float(v_vel.max()), 200)
+    ax2.plot(v_grid, -beta_hat * np.tanh(v_grid / 5.0), color=OI["black"], lw=2.0, label="Stribeck fit: −β tanh(v/v₀)")
+    ax2.axhline(0.0, color=OI["gray"], lw=0.9, ls=":")
+    ax2.axvline(0.0, color=OI["gray"], lw=0.9, ls=":")
+    ax2.set_title("Viscous Drag vs Coulomb Stiction")
+    ax2.set_xlabel("Planned Leaf Velocity v(t) (mm/s)")
+    ax2.set_ylabel("Position Residual Δx(t) (mm)")
+    ax2.legend(loc="upper right", fontsize=7.5)
+
+    # Panel C: Kalman State-Space RUL Forecast on TrueBeam-01
+    ax3 = fig.add_subplot(gs[0, 2])
+    _panel_label(ax3, "C")
+    trends = generate_tg142_fleet_trends()
+    tb01 = trends[0]
+    cutoff = 20
+    fc = forecast_tg142_kalman_rul(
+        tb01, metric_name="mlc_max_rms_mm", action_limit=0.70, observation_cutoff_day=cutoff, horizon_days=10
+    )
+
+    days_all = np.asarray(tb01.days)
+    vals_all = np.asarray(tb01.mlc_max_rms_mm)
+    obs_m = days_all <= cutoff
+    fut_m = days_all > cutoff
+
+    ax3.plot(days_all[obs_m], vals_all[obs_m], "o-", color=OI["blue"], lw=1.8, ms=4.0, label="Observed MPC (Days 1–20)")
+    ax3.plot(days_all[fut_m], vals_all[fut_m], "s:", color=OI["gray"], lw=1.4, ms=4.0, alpha=0.85, label="Held-out Actual (Days 21–30)")
+
+    f_days = [cutoff, *fc.forecast_days]
+    f_mean = [float(vals_all[obs_m][-1]), *fc.forecast_mean]
+    f_lo = [float(vals_all[obs_m][-1]), *fc.forecast_ci95_low]
+    f_hi = [float(vals_all[obs_m][-1]), *fc.forecast_ci95_high]
+
+    ax3.plot(f_days, f_mean, "-", color=OI["vermillion"], lw=2.2, label=f"Kalman Forecast (RUL = {fc.rul_mean_days:.1f} d)")
+    ax3.fill_between(f_days, f_lo, f_hi, color=OI["vermillion"], alpha=0.18, label="95% Credible Envelope")
+    ax3.axhline(0.70, color=OI["orange"], lw=1.5, ls="--", label="TG-142 Action Limit (0.70 mm)")
+    ax3.axvline(cutoff, color=OI["black"], lw=1.1, ls=":")
+    ax3.text(
+        0.04,
+        0.58,
+        f"Cutoff: Day {cutoff}\nRUL: {fc.rul_mean_days:.1f} d (95% CI {fc.rul_ci95_days[0]:.1f}–{fc.rul_ci95_days[1]:.1f} d)\n"
+        f"10d Breach Prob: {fc.breach_probability_within_horizon * 100:.0f}%",
+        transform=ax3.transAxes,
+        fontsize=7.5,
+        bbox={"boxstyle": "round,pad=0.28", "facecolor": "white", "edgecolor": OI["vermillion"], "alpha": 0.94},
+    )
+    ax3.set_title("Kalman State-Space RUL Forecast")
+    ax3.set_xlabel("Treatment Calendar Day")
+    ax3.set_ylabel("Max MLC Leaf RMS Error (mm)")
+    ax3.set_xlim(1, 30.5)
+    ax3.set_ylim(0.0, 1.25)
+    ax3.legend(loc="upper left", fontsize=7.3)
+
+    fig.suptitle(
+        "Closed-Loop Extensions (v0.2): Three-Way EPID Silent Faults, Nonlinear Stiction & Kalman RUL Forecasting",
+        fontsize=11.6,
+        fontweight="bold",
+        y=0.96,
+    )
+    _save_fig(
+        fig,
+        "fig7_epid_threeway_and_kalman_rul",
+        "Provenance: EPID_THREE_WAY_FORENSICS + SYNTHETIC_FAULT_INJECTION_BENCHMARK + SYNTHETIC_TG142_FLEET_DRIFT | Research Software — NOT A MEDICAL DEVICE",
+    )
+
+
 def main() -> None:
     _configure_style()
     summary_path = RESULTS_DIR / "benchmark_summary.json"
@@ -855,7 +999,8 @@ def main() -> None:
     make_fig4_causal_attribution(summary)
     make_fig5_tg142_fleet_triage()
     make_fig6_sobol_sensitivity(summary)
-    print(f"Generated all 6 publication-grade 300-DPI PNG + PDF figures in {FIGURES_DIR}")
+    make_fig7_epid_stiction_kalman_rul()
+    print(f"Generated all 7 publication-grade 300-DPI PNG + PDF figures in {FIGURES_DIR}")
 
 
 if __name__ == "__main__":

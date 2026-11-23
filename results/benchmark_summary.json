@@ -4,12 +4,12 @@
   "binary_roundtrip": {
     "version": "5.0",
     "file_bytes": 375988,
-    "write_ms": 1.72,
-    "parse_ms": 3.57,
+    "write_ms": 2.66,
+    "parse_ms": 3.66,
     "max_leaf_roundtrip_error_mm": 5.719512607527122e-06
   },
   "zero_error_invariant": {
-    "replay_ms": 58.02,
+    "replay_ms": 51.94,
     "max_abs_delta_fluence": 0.0,
     "max_abs_delta_dose_gy": 0.0,
     "gamma_2d_3pct_2mm": 100.0,
@@ -40,14 +40,16 @@
         "SYSTEMATIC_DLG_OFFSET": -8.78,
         "DOSE_RATE_ION_CHAMBER_DRIFT": -9.666,
         "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "MLC_COULOMB_STICTION": -9.693,
         "GANTRY_GRAVITY_SAG_HARMONIC": -18.998
       },
       "hypotheses_posterior_weight": {
-        "NULL_NOMINAL": 0.972481,
-        "SYSTEMATIC_DLG_OFFSET": 0.012062,
-        "DOSE_RATE_ION_CHAMBER_DRIFT": 0.007744,
-        "MLC_LEAF_MOTOR_FRICTION": 0.007641,
-        "GANTRY_GRAVITY_SAG_HARMONIC": 7.3e-05
+        "NULL_NOMINAL": 0.965106,
+        "SYSTEMATIC_DLG_OFFSET": 0.011971,
+        "DOSE_RATE_ION_CHAMBER_DRIFT": 0.007685,
+        "MLC_LEAF_MOTOR_FRICTION": 0.007583,
+        "MLC_COULOMB_STICTION": 0.007583,
+        "GANTRY_GRAVITY_SAG_HARMONIC": 7.2e-05
       }
     },
     {
@@ -64,10 +66,10 @@
       "flagged_leaf": {
         "bank": "B",
         "leaf_index": 34,
-        "tau_ms": 42.056,
+        "tau_ms": 42.008,
         "ci95_ms": [
-          41.991,
-          42.121
+          41.872,
+          42.144
         ]
       },
       "estimated_dlg_mm": 0.0005,
@@ -84,8 +86,9 @@
       ],
       "variance_explained_pct": 98.959,
       "hypotheses_delta_bic": {
-        "MLC_LEAF_MOTOR_FRICTION": 73938.249,
+        "MLC_LEAF_MOTOR_FRICTION": 73936.253,
         "NULL_NOMINAL": 0.0,
+        "MLC_COULOMB_STICTION": -9.693,
         "DOSE_RATE_ION_CHAMBER_DRIFT": -9.692,
         "SYSTEMATIC_DLG_OFFSET": -9.697,
         "GANTRY_GRAVITY_SAG_HARMONIC": -19.368
@@ -93,6 +96,7 @@
       "hypotheses_posterior_weight": {
         "MLC_LEAF_MOTOR_FRICTION": 1.0,
         "NULL_NOMINAL": 0.0,
+        "MLC_COULOMB_STICTION": 0.0,
         "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
         "SYSTEMATIC_DLG_OFFSET": 0.0,
         "GANTRY_GRAVITY_SAG_HARMONIC": 0.0
@@ -126,6 +130,7 @@
         "NULL_NOMINAL": 0.0,
         "DOSE_RATE_ION_CHAMBER_DRIFT": -9.692,
         "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "MLC_COULOMB_STICTION": -9.693,
         "GANTRY_GRAVITY_SAG_HARMONIC": -19.378
       },
       "hypotheses_posterior_weight": {
@@ -133,6 +138,7 @@
         "NULL_NOMINAL": 0.0,
         "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
         "MLC_LEAF_MOTOR_FRICTION": 0.0,
+        "MLC_COULOMB_STICTION": 0.0,
         "GANTRY_GRAVITY_SAG_HARMONIC": 0.0
       }
     },
@@ -165,6 +171,7 @@
         "NULL_NOMINAL": 0.0,
         "DOSE_RATE_ION_CHAMBER_DRIFT": -9.689,
         "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "MLC_COULOMB_STICTION": -9.693,
         "SYSTEMATIC_DLG_OFFSET": -9.693
       },
       "hypotheses_posterior_weight": {
@@ -172,6 +179,7 @@
         "NULL_NOMINAL": 0.0,
         "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
         "MLC_LEAF_MOTOR_FRICTION": 0.0,
+        "MLC_COULOMB_STICTION": 0.0,
         "SYSTEMATIC_DLG_OFFSET": 0.0
       }
     },
@@ -203,6 +211,7 @@
         "NULL_NOMINAL": 0.0,
         "SYSTEMATIC_DLG_OFFSET": -9.669,
         "MLC_LEAF_MOTOR_FRICTION": -9.693,
+        "MLC_COULOMB_STICTION": -9.693,
         "GANTRY_GRAVITY_SAG_HARMONIC": -19.268
       },
       "hypotheses_posterior_weight": {
@@ -210,6 +219,7 @@
         "NULL_NOMINAL": 0.0,
         "SYSTEMATIC_DLG_OFFSET": 0.0,
         "MLC_LEAF_MOTOR_FRICTION": 0.0,
+        "MLC_COULOMB_STICTION": 0.0,
         "GANTRY_GRAVITY_SAG_HARMONIC": 0.0
       }
     },
@@ -234,10 +244,10 @@
       "flagged_leaf": {
         "bank": "B",
         "leaf_index": 34,
-        "tau_ms": 41.936,
+        "tau_ms": 41.895,
         "ci95_ms": [
-          41.873,
-          42.0
+          41.763,
+          42.027
         ]
       },
       "estimated_dlg_mm": 0.5501,
@@ -254,12 +264,13 @@
       ],
       "variance_explained_pct": 99.565,
       "hypotheses_delta_bic": {
-        "JOINT_MULTI_FAULT": 88023.714,
+        "JOINT_MULTI_FAULT": 88022.237,
         "SYSTEMATIC_DLG_OFFSET": 11576.701,
-        "MLC_LEAF_MOTOR_FRICTION": 8364.443,
+        "MLC_LEAF_MOTOR_FRICTION": 8364.442,
         "GANTRY_GRAVITY_SAG_HARMONIC": 982.179,
         "DOSE_RATE_ION_CHAMBER_DRIFT": 329.284,
-        "NULL_NOMINAL": 0.0
+        "NULL_NOMINAL": 0.0,
+        "MLC_COULOMB_STICTION": -9.693
       },
       "hypotheses_posterior_weight": {
         "JOINT_MULTI_FAULT": 1.0,
@@ -267,14 +278,15 @@
         "MLC_LEAF_MOTOR_FRICTION": 0.0,
         "GANTRY_GRAVITY_SAG_HARMONIC": 0.0,
         "DOSE_RATE_ION_CHAMBER_DRIFT": 0.0,
-        "NULL_NOMINAL": 0.0
+        "NULL_NOMINAL": 0.0,
+        "MLC_COULOMB_STICTION": 0.0
       }
     }
   ],
   "gamma_blindspot_benchmark": {
     "n_cases": 32,
-    "n_clinically_unacceptable": 16,
-    "n_2d_3pct_2mm_blindspots": 16,
+    "n_clinically_unacceptable": 17,
+    "n_2d_3pct_2mm_blindspots": 17,
     "blindspot_rate_pct": 100.0,
     "n_caught_by_3d_2pct_1mm": 16,
     "cases": [
@@ -286,11 +298,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 99.568,
         "gamma_2d_2pct_1mm": 83.694,
-        "gamma_3d_3pct_2mm": 92.399,
-        "gamma_3d_2pct_1mm": 78.281,
-        "ptv70_delta_d95_pct": -3.0398,
-        "cord_delta_d003cc_gy": -0.9143,
-        "lpar_delta_dmean_gy": -1.4463,
+        "gamma_3d_3pct_2mm": 91.209,
+        "gamma_3d_2pct_1mm": 76.896,
+        "ptv70_delta_d95_pct": -3.1917,
+        "cord_delta_d003cc_gy": -0.9372,
+        "lpar_delta_dmean_gy": -1.554,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -302,11 +314,11 @@
         "mu_drift_pct": -0.615,
         "gamma_2d_3pct_2mm": 95.639,
         "gamma_2d_2pct_1mm": 70.216,
-        "gamma_3d_3pct_2mm": 84.191,
-        "gamma_3d_2pct_1mm": 72.227,
-        "ptv70_delta_d95_pct": -3.9783,
-        "cord_delta_d003cc_gy": -1.2691,
-        "lpar_delta_dmean_gy": -1.6675,
+        "gamma_3d_3pct_2mm": 82.837,
+        "gamma_3d_2pct_1mm": 70.906,
+        "ptv70_delta_d95_pct": -4.1835,
+        "cord_delta_d003cc_gy": -1.306,
+        "lpar_delta_dmean_gy": -1.7792,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -318,11 +330,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 91.945,
-        "gamma_3d_3pct_2mm": 96.065,
-        "gamma_3d_2pct_1mm": 82.922,
-        "ptv70_delta_d95_pct": -2.5549,
-        "cord_delta_d003cc_gy": -0.7981,
-        "lpar_delta_dmean_gy": -1.2485,
+        "gamma_3d_3pct_2mm": 95.281,
+        "gamma_3d_2pct_1mm": 81.327,
+        "ptv70_delta_d95_pct": -2.6798,
+        "cord_delta_d003cc_gy": -0.8184,
+        "lpar_delta_dmean_gy": -1.3407,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -334,11 +346,11 @@
         "mu_drift_pct": -0.264,
         "gamma_2d_3pct_2mm": 99.725,
         "gamma_2d_2pct_1mm": 87.819,
-        "gamma_3d_3pct_2mm": 92.898,
-        "gamma_3d_2pct_1mm": 78.788,
-        "ptv70_delta_d95_pct": -2.9286,
-        "cord_delta_d003cc_gy": -0.9443,
-        "lpar_delta_dmean_gy": -1.3456,
+        "gamma_3d_3pct_2mm": 91.779,
+        "gamma_3d_2pct_1mm": 77.422,
+        "ptv70_delta_d95_pct": -3.0734,
+        "cord_delta_d003cc_gy": -0.9705,
+        "lpar_delta_dmean_gy": -1.4394,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -350,11 +362,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 98.271,
-        "gamma_3d_3pct_2mm": 98.722,
-        "gamma_3d_2pct_1mm": 88.462,
-        "ptv70_delta_d95_pct": -2.084,
-        "cord_delta_d003cc_gy": -0.671,
-        "lpar_delta_dmean_gy": -1.0509,
+        "gamma_3d_3pct_2mm": 98.397,
+        "gamma_3d_2pct_1mm": 86.975,
+        "ptv70_delta_d95_pct": -2.1999,
+        "cord_delta_d003cc_gy": -0.688,
+        "lpar_delta_dmean_gy": -1.1277,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -366,11 +378,11 @@
         "mu_drift_pct": -0.303,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 94.892,
-        "gamma_3d_3pct_2mm": 95.826,
-        "gamma_3d_2pct_1mm": 82.452,
-        "ptv70_delta_d95_pct": -2.5565,
-        "cord_delta_d003cc_gy": -0.8724,
-        "lpar_delta_dmean_gy": -1.2285,
+        "gamma_3d_3pct_2mm": 95.104,
+        "gamma_3d_2pct_1mm": 80.988,
+        "ptv70_delta_d95_pct": -2.7019,
+        "cord_delta_d003cc_gy": -0.8944,
+        "lpar_delta_dmean_gy": -1.3212,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -382,11 +394,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
-        "gamma_3d_3pct_2mm": 99.88,
-        "gamma_3d_2pct_1mm": 94.47,
-        "ptv70_delta_d95_pct": -1.6492,
-        "cord_delta_d003cc_gy": -0.5586,
-        "lpar_delta_dmean_gy": -0.8644,
+        "gamma_3d_3pct_2mm": 99.818,
+        "gamma_3d_2pct_1mm": 93.419,
+        "ptv70_delta_d95_pct": -1.7384,
+        "cord_delta_d003cc_gy": -0.5728,
+        "lpar_delta_dmean_gy": -0.9263,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -398,11 +410,11 @@
         "mu_drift_pct": 0.25,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 98.389,
-        "gamma_3d_3pct_2mm": 99.315,
-        "gamma_3d_2pct_1mm": 94.942,
-        "ptv70_delta_d95_pct": -1.5629,
-        "cord_delta_d003cc_gy": -0.3236,
-        "lpar_delta_dmean_gy": -0.5584,
+        "gamma_3d_3pct_2mm": 99.082,
+        "gamma_3d_2pct_1mm": 94.007,
+        "ptv70_delta_d95_pct": -1.6874,
+        "cord_delta_d003cc_gy": -0.3363,
+        "lpar_delta_dmean_gy": -0.5748,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -415,10 +427,10 @@
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
-        "gamma_3d_2pct_1mm": 98.951,
-        "ptv70_delta_d95_pct": -1.2312,
-        "cord_delta_d003cc_gy": -0.4313,
-        "lpar_delta_dmean_gy": -0.6604,
+        "gamma_3d_2pct_1mm": 98.61,
+        "ptv70_delta_d95_pct": -1.3079,
+        "cord_delta_d003cc_gy": -0.4425,
+        "lpar_delta_dmean_gy": -0.7065,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -431,10 +443,10 @@
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
-        "gamma_3d_2pct_1mm": 99.975,
-        "ptv70_delta_d95_pct": -0.305,
-        "cord_delta_d003cc_gy": 0.158,
-        "lpar_delta_dmean_gy": -0.1255,
+        "gamma_3d_2pct_1mm": 99.91,
+        "ptv70_delta_d95_pct": -0.3273,
+        "cord_delta_d003cc_gy": 0.1615,
+        "lpar_delta_dmean_gy": -0.1208,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -447,10 +459,10 @@
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
-        "gamma_3d_2pct_1mm": 99.998,
-        "ptv70_delta_d95_pct": -0.822,
-        "cord_delta_d003cc_gy": -0.302,
-        "lpar_delta_dmean_gy": -0.4625,
+        "gamma_3d_2pct_1mm": 99.995,
+        "ptv70_delta_d95_pct": -0.8656,
+        "cord_delta_d003cc_gy": -0.3097,
+        "lpar_delta_dmean_gy": -0.4939,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -462,11 +474,11 @@
         "mu_drift_pct": -0.814,
         "gamma_2d_3pct_2mm": 99.882,
         "gamma_2d_2pct_1mm": 97.8,
-        "gamma_3d_3pct_2mm": 98.141,
-        "gamma_3d_2pct_1mm": 87.816,
-        "ptv70_delta_d95_pct": -2.0583,
-        "cord_delta_d003cc_gy": -0.618,
-        "lpar_delta_dmean_gy": -0.7696,
+        "gamma_3d_3pct_2mm": 97.728,
+        "gamma_3d_2pct_1mm": 86.443,
+        "ptv70_delta_d95_pct": -2.1884,
+        "cord_delta_d003cc_gy": -0.6255,
+        "lpar_delta_dmean_gy": -0.8076,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -480,9 +492,9 @@
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
         "gamma_3d_2pct_1mm": 100.0,
-        "ptv70_delta_d95_pct": -0.4504,
-        "cord_delta_d003cc_gy": -0.1765,
-        "lpar_delta_dmean_gy": -0.2746,
+        "ptv70_delta_d95_pct": -0.4779,
+        "cord_delta_d003cc_gy": -0.1816,
+        "lpar_delta_dmean_gy": -0.2916,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -494,11 +506,11 @@
         "mu_drift_pct": -0.385,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 99.725,
-        "gamma_3d_3pct_2mm": 99.79,
-        "gamma_3d_2pct_1mm": 99.18,
-        "ptv70_delta_d95_pct": -0.9647,
-        "cord_delta_d003cc_gy": -0.4118,
-        "lpar_delta_dmean_gy": -0.471,
+        "gamma_3d_3pct_2mm": 99.758,
+        "gamma_3d_2pct_1mm": 99.079,
+        "ptv70_delta_d95_pct": -1.0248,
+        "cord_delta_d003cc_gy": -0.424,
+        "lpar_delta_dmean_gy": -0.5026,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -512,9 +524,9 @@
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
         "gamma_3d_2pct_1mm": 100.0,
-        "ptv70_delta_d95_pct": -0.1034,
-        "cord_delta_d003cc_gy": -0.0534,
-        "lpar_delta_dmean_gy": -0.0701,
+        "ptv70_delta_d95_pct": -0.112,
+        "cord_delta_d003cc_gy": -0.0523,
+        "lpar_delta_dmean_gy": -0.0714,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -526,11 +538,11 @@
         "mu_drift_pct": -0.922,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
-        "gamma_3d_3pct_2mm": 99.968,
-        "gamma_3d_2pct_1mm": 97.345,
-        "ptv70_delta_d95_pct": -1.1835,
-        "cord_delta_d003cc_gy": -0.4104,
-        "lpar_delta_dmean_gy": -0.5109,
+        "gamma_3d_3pct_2mm": 99.953,
+        "gamma_3d_2pct_1mm": 96.611,
+        "ptv70_delta_d95_pct": -1.2713,
+        "cord_delta_d003cc_gy": -0.4223,
+        "lpar_delta_dmean_gy": -0.5407,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -544,9 +556,9 @@
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
         "gamma_3d_2pct_1mm": 100.0,
-        "ptv70_delta_d95_pct": 0.2406,
-        "cord_delta_d003cc_gy": 0.1538,
-        "lpar_delta_dmean_gy": 0.1231,
+        "ptv70_delta_d95_pct": 0.2529,
+        "cord_delta_d003cc_gy": 0.1563,
+        "lpar_delta_dmean_gy": 0.1362,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -558,11 +570,11 @@
         "mu_drift_pct": -1.018,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 99.764,
-        "gamma_3d_3pct_2mm": 99.817,
-        "gamma_3d_2pct_1mm": 97.173,
-        "ptv70_delta_d95_pct": -1.004,
-        "cord_delta_d003cc_gy": -0.0899,
-        "lpar_delta_dmean_gy": -0.268,
+        "gamma_3d_3pct_2mm": 99.732,
+        "gamma_3d_2pct_1mm": 96.41,
+        "ptv70_delta_d95_pct": -1.0807,
+        "cord_delta_d003cc_gy": -0.0973,
+        "lpar_delta_dmean_gy": -0.2665,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -576,9 +588,9 @@
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
         "gamma_3d_2pct_1mm": 100.0,
-        "ptv70_delta_d95_pct": 0.6054,
-        "cord_delta_d003cc_gy": 0.3611,
-        "lpar_delta_dmean_gy": 0.3309,
+        "ptv70_delta_d95_pct": 0.6319,
+        "cord_delta_d003cc_gy": 0.3647,
+        "lpar_delta_dmean_gy": 0.3594,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -591,10 +603,10 @@
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
-        "gamma_3d_2pct_1mm": 99.962,
-        "ptv70_delta_d95_pct": 0.4979,
-        "cord_delta_d003cc_gy": 0.2341,
-        "lpar_delta_dmean_gy": 0.2459,
+        "gamma_3d_2pct_1mm": 99.945,
+        "ptv70_delta_d95_pct": 0.5158,
+        "cord_delta_d003cc_gy": 0.2342,
+        "lpar_delta_dmean_gy": 0.264,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -607,10 +619,10 @@
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
-        "gamma_3d_2pct_1mm": 99.994,
-        "ptv70_delta_d95_pct": 0.9526,
-        "cord_delta_d003cc_gy": 0.5678,
-        "lpar_delta_dmean_gy": 0.5281,
+        "gamma_3d_2pct_1mm": 99.991,
+        "ptv70_delta_d95_pct": 0.9822,
+        "cord_delta_d003cc_gy": 0.5732,
+        "lpar_delta_dmean_gy": 0.5724,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -622,11 +634,11 @@
         "mu_drift_pct": 0.749,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
-        "gamma_3d_3pct_2mm": 99.989,
-        "gamma_3d_2pct_1mm": 90.725,
-        "ptv70_delta_d95_pct": 1.7216,
-        "cord_delta_d003cc_gy": 0.9023,
-        "lpar_delta_dmean_gy": 0.9167,
+        "gamma_3d_3pct_2mm": 99.972,
+        "gamma_3d_2pct_1mm": 89.438,
+        "ptv70_delta_d95_pct": 1.8138,
+        "cord_delta_d003cc_gy": 0.9195,
+        "lpar_delta_dmean_gy": 0.9895,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -639,12 +651,12 @@
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
         "gamma_3d_3pct_2mm": 100.0,
-        "gamma_3d_2pct_1mm": 98.918,
-        "ptv70_delta_d95_pct": 1.2725,
-        "cord_delta_d003cc_gy": 0.7469,
-        "lpar_delta_dmean_gy": 0.7282,
-        "clinically_unacceptable": false,
-        "gamma_blindspot": false
+        "gamma_3d_2pct_1mm": 98.557,
+        "ptv70_delta_d95_pct": 1.3187,
+        "cord_delta_d003cc_gy": 0.7532,
+        "lpar_delta_dmean_gy": 0.7873,
+        "clinically_unacceptable": true,
+        "gamma_blindspot": true
       },
       {
         "case_id": "C24",
@@ -654,11 +666,11 @@
         "mu_drift_pct": -0.556,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
-        "gamma_3d_3pct_2mm": 99.826,
-        "gamma_3d_2pct_1mm": 98.691,
-        "ptv70_delta_d95_pct": 0.5301,
-        "cord_delta_d003cc_gy": 0.7927,
-        "lpar_delta_dmean_gy": 0.5857,
+        "gamma_3d_3pct_2mm": 99.746,
+        "gamma_3d_2pct_1mm": 98.211,
+        "ptv70_delta_d95_pct": 0.5244,
+        "cord_delta_d003cc_gy": 0.8002,
+        "lpar_delta_dmean_gy": 0.6541,
         "clinically_unacceptable": false,
         "gamma_blindspot": false
       },
@@ -670,11 +682,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 100.0,
-        "gamma_3d_3pct_2mm": 99.842,
-        "gamma_3d_2pct_1mm": 94.563,
-        "ptv70_delta_d95_pct": 1.5947,
-        "cord_delta_d003cc_gy": 0.9643,
-        "lpar_delta_dmean_gy": 0.9314,
+        "gamma_3d_3pct_2mm": 99.762,
+        "gamma_3d_2pct_1mm": 93.593,
+        "ptv70_delta_d95_pct": 1.6504,
+        "cord_delta_d003cc_gy": 0.9711,
+        "lpar_delta_dmean_gy": 1.0059,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -686,11 +698,11 @@
         "mu_drift_pct": 0.41,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 98.703,
-        "gamma_3d_3pct_2mm": 97.716,
-        "gamma_3d_2pct_1mm": 85.849,
-        "ptv70_delta_d95_pct": 1.9949,
-        "cord_delta_d003cc_gy": 1.3356,
-        "lpar_delta_dmean_gy": 1.242,
+        "gamma_3d_3pct_2mm": 97.203,
+        "gamma_3d_2pct_1mm": 84.262,
+        "ptv70_delta_d95_pct": 2.0682,
+        "cord_delta_d003cc_gy": 1.3571,
+        "lpar_delta_dmean_gy": 1.3513,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -702,11 +714,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 98.978,
-        "gamma_3d_3pct_2mm": 98.797,
-        "gamma_3d_2pct_1mm": 89.053,
-        "ptv70_delta_d95_pct": 1.8915,
-        "cord_delta_d003cc_gy": 1.164,
-        "lpar_delta_dmean_gy": 1.1233,
+        "gamma_3d_3pct_2mm": 98.459,
+        "gamma_3d_2pct_1mm": 87.591,
+        "ptv70_delta_d95_pct": 1.9627,
+        "cord_delta_d003cc_gy": 1.173,
+        "lpar_delta_dmean_gy": 1.2116,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -718,11 +730,11 @@
         "mu_drift_pct": 0.315,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 96.11,
-        "gamma_3d_3pct_2mm": 96.148,
-        "gamma_3d_2pct_1mm": 83.011,
-        "ptv70_delta_d95_pct": 2.1927,
-        "cord_delta_d003cc_gy": 1.3883,
-        "lpar_delta_dmean_gy": 1.3285,
+        "gamma_3d_3pct_2mm": 95.414,
+        "gamma_3d_2pct_1mm": 81.579,
+        "ptv70_delta_d95_pct": 2.2749,
+        "cord_delta_d003cc_gy": 1.4046,
+        "lpar_delta_dmean_gy": 1.4358,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -734,11 +746,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 92.809,
-        "gamma_3d_3pct_2mm": 96.322,
-        "gamma_3d_2pct_1mm": 83.475,
-        "ptv70_delta_d95_pct": 2.1776,
-        "cord_delta_d003cc_gy": 1.3569,
-        "lpar_delta_dmean_gy": 1.3295,
+        "gamma_3d_3pct_2mm": 95.581,
+        "gamma_3d_2pct_1mm": 82.035,
+        "ptv70_delta_d95_pct": 2.2584,
+        "cord_delta_d003cc_gy": 1.3682,
+        "lpar_delta_dmean_gy": 1.4328,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -750,11 +762,11 @@
         "mu_drift_pct": -0.813,
         "gamma_2d_3pct_2mm": 100.0,
         "gamma_2d_2pct_1mm": 99.057,
-        "gamma_3d_3pct_2mm": 99.37,
-        "gamma_3d_2pct_1mm": 94.958,
-        "ptv70_delta_d95_pct": 1.1638,
-        "cord_delta_d003cc_gy": 1.1047,
-        "lpar_delta_dmean_gy": 0.9511,
+        "gamma_3d_3pct_2mm": 99.179,
+        "gamma_3d_2pct_1mm": 94.045,
+        "ptv70_delta_d95_pct": 1.1947,
+        "cord_delta_d003cc_gy": 1.1073,
+        "lpar_delta_dmean_gy": 1.034,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -766,11 +778,11 @@
         "mu_drift_pct": 0.0,
         "gamma_2d_3pct_2mm": 99.646,
         "gamma_2d_2pct_1mm": 84.597,
-        "gamma_3d_3pct_2mm": 92.766,
-        "gamma_3d_2pct_1mm": 79.082,
-        "ptv70_delta_d95_pct": 2.4646,
-        "cord_delta_d003cc_gy": 1.5781,
-        "lpar_delta_dmean_gy": 1.5361,
+        "gamma_3d_3pct_2mm": 91.736,
+        "gamma_3d_2pct_1mm": 77.615,
+        "ptv70_delta_d95_pct": 2.5745,
+        "cord_delta_d003cc_gy": 1.5928,
+        "lpar_delta_dmean_gy": 1.6551,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       },
@@ -782,11 +794,11 @@
         "mu_drift_pct": -0.133,
         "gamma_2d_3pct_2mm": 99.843,
         "gamma_2d_2pct_1mm": 86.876,
-        "gamma_3d_3pct_2mm": 94.187,
-        "gamma_3d_2pct_1mm": 81.43,
-        "ptv70_delta_d95_pct": 2.2784,
-        "cord_delta_d003cc_gy": 1.4877,
-        "lpar_delta_dmean_gy": 1.4467,
+        "gamma_3d_3pct_2mm": 93.301,
+        "gamma_3d_2pct_1mm": 79.955,
+        "ptv70_delta_d95_pct": 2.3597,
+        "cord_delta_d003cc_gy": 1.4992,
+        "lpar_delta_dmean_gy": 1.557,
         "clinically_unacceptable": true,
         "gamma_blindspot": true
       }
@@ -797,7 +809,7 @@
     "critic_gate_passed": true,
     "critic_checks": "6/6",
     "isolated_subsystems": [
-      "MLC Bank B Leaf #34 Motor / T-Nut (\u03c4=45.0 ms)",
+      "MLC Bank B Leaf #34 Motor / T-Nut (\u03c4=44.9 ms)",
       "MLC Bank Calibration / DLG (-0.779 mm)",
       "Gantry Head / Carriage Flex (0.21 mm harmonic)",
       "Monitor Ion-Chamber Gain (-0.30%)"
@@ -809,7 +821,7 @@
     "tb01_action_breach_day": 26
   },
   "sobol_sensitivity": {
-    "runtime_s": 1.02,
+    "runtime_s": 1.44,
     "reports": {
       "PTV70_delta_D95_pct": {
         "output_metric": "PTV70_delta_D95_pct",
@@ -840,58 +852,58 @@
           ]
         },
         "first_order_s1": {
-          "mlc_leaf_lag_ms": 0.33065,
-          "dlg_offset_mm": 0.18083,
-          "gantry_sag_amp_mm": 0.01475,
-          "mu_output_drift_pct": 0.47115
+          "mlc_leaf_lag_ms": 0.33093,
+          "dlg_offset_mm": 0.18307,
+          "gantry_sag_amp_mm": 0.0157,
+          "mu_output_drift_pct": 0.46784
         },
         "total_order_st": {
-          "mlc_leaf_lag_ms": 0.33307,
-          "dlg_offset_mm": 0.18221,
-          "gantry_sag_amp_mm": 0.01455,
-          "mu_output_drift_pct": 0.47176
+          "mlc_leaf_lag_ms": 0.33316,
+          "dlg_offset_mm": 0.1843,
+          "gantry_sag_amp_mm": 0.01551,
+          "mu_output_drift_pct": 0.46854
         },
         "s1_ci95": {
           "mlc_leaf_lag_ms": [
-            0.22947,
-            0.43334
+            0.22884,
+            0.43394
           ],
           "dlg_offset_mm": [
-            0.1152,
-            0.25338
+            0.1166,
+            0.25635
           ],
           "gantry_sag_amp_mm": [
             0.0,
-            0.03606
+            0.03779
           ],
           "mu_output_drift_pct": [
-            0.35082,
-            0.57677
+            0.34726,
+            0.57468
           ]
         },
         "st_ci95": {
           "mlc_leaf_lag_ms": [
-            0.29136,
-            0.37311
+            0.29143,
+            0.37273
           ],
           "dlg_offset_mm": [
-            0.16064,
-            0.20839
+            0.16269,
+            0.21071
           ],
           "gantry_sag_amp_mm": [
-            0.0128,
-            0.01623
+            0.01358,
+            0.01718
           ],
           "mu_output_drift_pct": [
-            0.42472,
-            0.53058
+            0.42185,
+            0.52676
           ]
         },
         "interaction_index": {
-          "mlc_leaf_lag_ms": 0.00242,
-          "dlg_offset_mm": 0.00138,
+          "mlc_leaf_lag_ms": 0.00223,
+          "dlg_offset_mm": 0.00123,
           "gantry_sag_amp_mm": 0.0,
-          "mu_output_drift_pct": 0.00061
+          "mu_output_drift_pct": 0.0007
         },
         "provenance": {
           "record_id": "sobol:PTV70_delta_D95_pct",
@@ -900,9 +912,9 @@
           "sha256_inputs": {
             "sobol_config": "eb7d2246446e6f1c7771d93f45946d5967c2a322aade0db3835c6563116ed52b"
           },
-          "engine_version": "0.1.0",
+          "engine_version": "0.2.0",
           "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-          "created_utc": "2026-11-23T22:19:06.664129+00:00",
+          "created_utc": "2026-11-23T22:48:00.963546+00:00",
           "notes": "Exact Saltelli-Jansen QMC Sobol' sensitivity (3072 evaluations)."
         }
       },
@@ -935,58 +947,58 @@
           ]
         },
         "first_order_s1": {
-          "mlc_leaf_lag_ms": 0.05489,
-          "dlg_offset_mm": 0.21376,
-          "gantry_sag_amp_mm": 0.30805,
-          "mu_output_drift_pct": 0.40892
+          "mlc_leaf_lag_ms": 0.053,
+          "dlg_offset_mm": 0.21176,
+          "gantry_sag_amp_mm": 0.30106,
+          "mu_output_drift_pct": 0.42033
         },
         "total_order_st": {
-          "mlc_leaf_lag_ms": 0.06356,
-          "dlg_offset_mm": 0.22379,
-          "gantry_sag_amp_mm": 0.31522,
-          "mu_output_drift_pct": 0.41575
+          "mlc_leaf_lag_ms": 0.06135,
+          "dlg_offset_mm": 0.22143,
+          "gantry_sag_amp_mm": 0.30798,
+          "mu_output_drift_pct": 0.42693
         },
         "s1_ci95": {
           "mlc_leaf_lag_ms": [
-            0.01827,
-            0.09366
+            0.01731,
+            0.09113
           ],
           "dlg_offset_mm": [
-            0.13195,
-            0.29068
+            0.13112,
+            0.28673
           ],
           "gantry_sag_amp_mm": [
-            0.21937,
-            0.40924
+            0.2143,
+            0.40077
           ],
           "mu_output_drift_pct": [
-            0.30117,
-            0.50264
+            0.31103,
+            0.51497
           ]
         },
         "st_ci95": {
           "mlc_leaf_lag_ms": [
-            0.05436,
-            0.07315
+            0.05244,
+            0.07062
           ],
           "dlg_offset_mm": [
-            0.19594,
-            0.25497
+            0.19391,
+            0.25183
           ],
           "gantry_sag_amp_mm": [
-            0.28195,
-            0.35604
+            0.27555,
+            0.34783
           ],
           "mu_output_drift_pct": [
-            0.371,
-            0.47543
+            0.38153,
+            0.48827
           ]
         },
         "interaction_index": {
-          "mlc_leaf_lag_ms": 0.00867,
-          "dlg_offset_mm": 0.01002,
-          "gantry_sag_amp_mm": 0.00718,
-          "mu_output_drift_pct": 0.00683
+          "mlc_leaf_lag_ms": 0.00836,
+          "dlg_offset_mm": 0.00967,
+          "gantry_sag_amp_mm": 0.00692,
+          "mu_output_drift_pct": 0.00659
         },
         "provenance": {
           "record_id": "sobol:SpinalCord_delta_D003cc_Gy",
@@ -995,11 +1007,166 @@
           "sha256_inputs": {
             "sobol_config": "c2db86512a23dc54ed770613468288a5a5267f5c05e492574b142b18aaf450d5"
           },
-          "engine_version": "0.1.0",
+          "engine_version": "0.2.0",
           "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-          "created_utc": "2026-11-23T22:19:06.666870+00:00",
+          "created_utc": "2026-11-23T22:48:00.966489+00:00",
           "notes": "Exact Saltelli-Jansen QMC Sobol' sensitivity (3072 evaluations)."
         }
+      }
+    }
+  },
+  "v02_upgrades": {
+    "openkbp_cohort_patients": [
+      "pt_1",
+      "pt_2",
+      "pt_3"
+    ],
+    "epid_three_way_silent_fault": {
+      "log_id": "EPID_SILENT_BENCH",
+      "machine_id": "TrueBeam-01",
+      "classification": "ENCODER_BLIND_SILENT_FAULT",
+      "encoder_blind_fault_detected": true,
+      "gamma_plan_vs_log_2pct_1mm": 100.0,
+      "gamma_plan_vs_epid_2pct_1mm": 55.403,
+      "gamma_log_vs_epid_2pct_1mm": 55.403,
+      "rms_epid_minus_log_pct": 2.5505,
+      "max_epid_minus_log_pct": 15.2268,
+      "inplane_symmetry_tilt_pct": 0.609,
+      "crossplane_symmetry_tilt_pct": -3.917,
+      "inferred_silent_fault_summary": "CRITICAL ENCODER-BLIND SILENT FAULT: Trajectory log agrees with plan (\u03b3=100.0%) while measured EPID diverges (Log vs EPID \u03b3=55.4%, max |\u0394\u03a6|=15.2%). Inspect MLC optical encoder coupling, leaf-tip screws, and physical jaw/DLG zero calibration.",
+      "provenance": {
+        "record_id": "epid3way:EPID_SILENT_BENCH",
+        "provenance_tag": "EPID_THREE_WAY_FORENSICS",
+        "dataset_source": "Three-Way EPID Forensics (linac-forensics Synthetic VMAT Trajectory Fault-Injection Suite)",
+        "sha256_inputs": {
+          "fault_config": "20f38bc24c64918031d805805c0761e095abfc7237fd52b44b5143df3c852474",
+          "epid_summary": "4527b62f88d488593c5aaa4345e66e1bada49d05598cf56160775f0ae7fa77e1"
+        },
+        "engine_version": "0.2.0",
+        "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+        "created_utc": "2026-11-23T22:48:01.027604+00:00",
+        "notes": "Three-way TPS vs Log vs EPID verification (classification=ENCODER_BLIND_SILENT_FAULT)."
+      }
+    },
+    "coulomb_stiction_recovery": {
+      "primary_root_cause": "MLC_COULOMB_STICTION",
+      "injected_stiction_mm": 0.7,
+      "recovered_stiction_mm": 0.7015,
+      "variance_explained_pct": 95.464
+    },
+    "kalman_rul_forecast_day20": {
+      "machine_id": "TrueBeam-01",
+      "metric_name": "mlc_max_rms_mm",
+      "action_limit": 0.7,
+      "observation_cutoff_day": 20,
+      "horizon_days": 10,
+      "forecast_days": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ],
+      "forecast_mean": [
+        0.4733,
+        0.5123,
+        0.5514,
+        0.5905,
+        0.6296,
+        0.6687,
+        0.7077,
+        0.7468,
+        0.7859,
+        0.825
+      ],
+      "forecast_ci95_low": [
+        0.3926,
+        0.4077,
+        0.4183,
+        0.4252,
+        0.4289,
+        0.4299,
+        0.4284,
+        0.4245,
+        0.4185,
+        0.4104
+      ],
+      "forecast_ci95_high": [
+        0.554,
+        0.617,
+        0.6846,
+        0.7558,
+        0.8302,
+        0.9074,
+        0.987,
+        1.0691,
+        1.1533,
+        1.2395
+      ],
+      "estimated_drift_rate_per_day": 0.03908,
+      "rul_mean_days": 6.8,
+      "rul_ci95_days": [
+        3.63,
+        23.88
+      ],
+      "breach_probability_within_horizon": 0.7227,
+      "maintenance_recommendation": "PROACTIVE SERVICE ALERT: Predicted breach of mlc_max_rms_mm (0.7) in 6.8 days (95% CI (3.63, 23.88); 10-day breach prob=72%). Schedule preventive MLC/DLG service prior to clinical lockout.",
+      "provenance": {
+        "record_id": "kalman_rul:TrueBeam-01:mlc_max_rms_mm:d20",
+        "provenance_tag": "SYNTHETIC_TG142_FLEET_DRIFT",
+        "dataset_source": "linac-forensics 30-day AAPM TG-142 / MPC Drift Benchmark",
+        "sha256_inputs": {
+          "config": "e4731013b91c364bdc8da8a2e8720883fb6cbc22eb5afefb61cf336470bfd8c7",
+          "rul_config": "375f0f937a6f771f1fe7a7a3b8a3675ac0842debbd2e939ad832f83b6d5fd358"
+        },
+        "engine_version": "0.2.0",
+        "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+        "created_utc": "2026-11-23T22:48:01.038024+00:00",
+        "notes": "Local-linear-trend Kalman RUL forecast from Day 20 (+10d)."
+      }
+    },
+    "multifraction_accumulation_pt2": {
+      "patient_id": "pt_2",
+      "plan_id": "VMAT_HN_SIB_70Gy",
+      "anatomy_source": "OpenKBP/pt_2 (CC BY 4.0, Babier et al. 2021)",
+      "fractions_delivered": 5,
+      "total_prescribed_fractions": 35,
+      "cumulative_ptv_delta_d95_pct": -2.6434,
+      "systematic_component_pct": -2.6433,
+      "random_component_rms_pct": 0.3001,
+      "cumulative_critical_oar_delta_d003cc_gy": -0.3448,
+      "critical_oar_name": "Brainstem",
+      "recommended_remaining_fx_mu_scale": 1.00441,
+      "adaptive_replan_triggered": true,
+      "provenance": {
+        "record_id": "multifx:pt_2:5fx",
+        "provenance_tag": "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
+        "dataset_source": "OpenKBP/pt_2 (CC BY 4.0, Babier et al. 2021) + 5 delivered fraction logs",
+        "sha256_inputs": {
+          "openkbp/ct.csv": "188a92faef4a96cc95be66037412b22dd9331e77282ad9bff7a559c54b1ba6c2",
+          "openkbp/dose.csv": "60dd44ef54759851c6d2592b88e07868af12a643710d33a610ef780afe5a18c5",
+          "openkbp/possible_dose_mask.csv": "545cc7c80e70f69d03b24399c916fdfc484e9559303e671600e43a7585189f67",
+          "openkbp/voxel_dimensions.csv": "d4fab7ca14982220a613cb45cd40f09ea920d0f0c1191f41bb0647663804c5ef",
+          "openkbp/Brainstem.csv": "ccbc0a607203706a66a1d6d57071f52496d8883c6a18ef638d48a00788305911",
+          "openkbp/SpinalCord.csv": "549625c9e4578c3ce4b0e58a03ae0121cc4b7b82b3f459bf8a838f947dfa3231",
+          "openkbp/RightParotid.csv": "d4b75163afa480a5adfdb423d6c92b3a8d85582d35f050b0ab8764ef37577ece",
+          "openkbp/LeftParotid.csv": "75ce575df672f9fac5de044dbf65c8bcd17fb67ff2a7056644163273587174ac",
+          "openkbp/Esophagus.csv": "3a0fb9d4673dce92f175528f330b0ac81bef72366fb605ca4adb0fbadaa44e5b",
+          "openkbp/Mandible.csv": "5ab261197c65a1bc1d7c666b2eaebebd3fa53be61fa81808bb944179b10b59b2",
+          "openkbp/PTV70.csv": "ac6b5df96a2e36116f887345de5ffd45007271ce664e2e3c368e583b9a3f5b35",
+          "openkbp/PTV63.csv": "7cd5c7a02003a21cef8947837c9414f6749a5ea8c02c0730de7eaad7bb0bb8fd",
+          "openkbp/PTV56.csv": "ee81d8e4b676b5c1dd1d78f1ac1bfa2623c679b38aa3786270bef968a7e5289a",
+          "fraction_ids": "995bc71f731980ad48cd344ef1c835a35c2fb73e3d8b2624c08891c574d8123b"
+        },
+        "engine_version": "0.2.0",
+        "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+        "created_utc": "2026-11-23T22:48:02.090396+00:00",
+        "notes": "Cumulative 3D dose accumulation over 5/35 fractions."
       }
     }
   }

@@ -105,6 +105,8 @@ def test_mcp_protocol_handshake_and_tools_list() -> None:
         "linac_compare_gamma_vs_dvh",
         "linac_triage_patient_fleet",
         "linac_run_sobol_sensitivity",
+        "linac_analyze_epid_three_way",
+        "linac_forecast_tg142_rul",
     }
 
 

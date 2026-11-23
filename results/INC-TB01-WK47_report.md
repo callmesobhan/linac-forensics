@@ -4,7 +4,7 @@
 
 - **Target Linac:** `TrueBeam-01`
 - **Primary Root Cause:** `JOINT_MULTI_FAULT`
-- **Isolated Hardware Subsystems:** MLC Bank B Leaf #34 Motor / T-Nut (τ=45.0 ms), MLC Bank Calibration / DLG (-0.779 mm), Gantry Head / Carriage Flex (0.21 mm harmonic), Monitor Ion-Chamber Gain (-0.30%)
+- **Isolated Hardware Subsystems:** MLC Bank B Leaf #34 Motor / T-Nut (τ=44.9 ms), MLC Bank Calibration / DLG (-0.779 mm), Gantry Head / Carriage Flex (0.21 mm harmonic), Monitor Ion-Chamber Gain (-0.30%)
 - **Service Urgency:** `IMMEDIATE_LOCKOUT`
 - **Critic-Verifier Gate:** `PASSED` (6/6 checks)
 
@@ -13,6 +13,7 @@
 | Hypothesis | Status | Mean ΔBIC vs Null | Mean SNR | Numerical Evidence |
 | --- | --- | ---: | ---: | --- |
 | `MLC_LEAF_MOTOR_FRICTION` | **SUPPORTED** | +11441.9 | 155.4 | Detected in 6/6 logs (mean ΔBIC=+11441.9, SNR=155.4). |
+| `MLC_COULOMB_STICTION` | **FALSIFIED** | -9.2 | 1.1 | Falsified numerically (0/6 detections; mean ΔBIC=-9.2). |
 | `SYSTEMATIC_DLG_OFFSET` | **SUPPORTED** | +3739.8 | 266.7 | Detected in 6/6 logs (mean ΔBIC=+3739.8, SNR=266.7). |
 | `GANTRY_GRAVITY_SAG_HARMONIC` | **SUPPORTED** | +2.9 | 43.7 | Detected in 6/6 logs (mean ΔBIC=+2.9, SNR=43.7). |
 | `DOSE_RATE_ION_CHAMBER_DRIFT` | **SUPPORTED** | -4.3 | 15.0 | Detected in 4/6 logs (mean ΔBIC=-4.3, SNR=15.0). |
@@ -21,12 +22,12 @@
 
 | Priority | Patient | Site | Fx | 2D γ (3%/2mm) | PTV ΔD95 (%) | Crit OAR ΔD0.03cc (Gy) | Blindspot | Risk |
 | --- | --- | --- | ---: | ---: | ---: | ---: | :---: | ---: |
-| **CRITICAL** | `PT-HN-002` | Nasopharynx Re-Irradiation | 5 | 100.0% | +2.23% | +2.40 (Mandible) | YES | 81.7 |
-| **CRITICAL** | `PT-HN-001` | Head & Neck SIB (OpenKBP pt_1) | 5 | 100.0% | +2.00% | +2.13 (Mandible) | YES | 73.9 |
-| **HIGH** | `PT-LG-005` | Stage III NSCLC | 4 | 100.0% | +1.57% | +1.53 (Mandible) | YES | 56.1 |
-| **HIGH** | `PT-PR-004` | Prostate + Seminal Vesicles | 5 | 100.0% | +1.33% | +1.26 (Mandible) | no | 50.2 |
-| **CRITICAL** | `PT-SBRT-003` | Thoracic Spine SBRT | 3 | 100.0% | -2.55% | -0.74 (LeftParotid) | YES | 46.9 |
-| **MODERATE** | `PT-BR-006` | Whole Breast Hypofrac | 5 | 100.0% | +0.74% | +0.53 (Mandible) | no | 29.9 |
+| **CRITICAL** | `PT-HN-001` | Head & Neck SIB (OpenKBP pt_1) | 5 | 100.0% | +2.10% | +2.30 (Mandible) | YES | 78.0 |
+| **CRITICAL** | `PT-HN-002` | Nasopharynx Re-Irradiation | 5 | 100.0% | +1.81% | +2.06 (RightParotid) | YES | 69.9 |
+| **CRITICAL** | `PT-SBRT-003` | Thoracic Spine SBRT | 3 | 100.0% | -3.28% | -0.50 (Brainstem) | YES | 56.0 |
+| **HIGH** | `PT-PR-004` | Prostate + Seminal Vesicles | 5 | 100.0% | +1.39% | +1.37 (Mandible) | no | 52.7 |
+| **HIGH** | `PT-LG-005` | Stage III NSCLC | 4 | 100.0% | +1.31% | +1.41 (RightParotid) | no | 50.1 |
+| **MODERATE** | `PT-BR-006` | Whole Breast Hypofrac | 5 | 100.0% | +0.66% | +0.48 (RightParotid) | no | 27.9 |
 
 ## 3. Service Engineering Work Order (`WO-INC-TB01-WK47`)
 

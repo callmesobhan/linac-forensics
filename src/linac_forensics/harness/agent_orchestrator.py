@@ -28,6 +28,7 @@ from linac_forensics.anatomy import PatientAnatomyVolume
 from linac_forensics.causal_fault_model import diagnose_causal_faults
 from linac_forensics.ir import (
     CausalFaultDiagnosis,
+    KalmanRULForecast,
     PatientTriageRecord,
     PerturbativeDoseImpact,
     ProvenanceRecord,
@@ -36,6 +37,7 @@ from linac_forensics.ir import (
 )
 from linac_forensics.log_parser import generate_synthetic_vmat_log
 from linac_forensics.perturbative_dose import compute_perturbative_dose_replay
+from linac_forensics.predictive_rul import forecast_tg142_kalman_rul
 from linac_forensics.provenance import build_provenance, sha256_json_payload
 
 # AAPM TG-142 tolerance & early predictive warning thresholds (IMRT/VMAT tier)
@@ -96,6 +98,7 @@ class FleetIncidentLedger(BaseModel):
     incident_id: str
     machine_id: str
     tg142_trends: list[TG142TrendSeries]
+    rul_forecast: KalmanRULForecast | None = None
     hypothesis_audit: list[HypothesisAuditEntry]
     representative_diagnosis: CausalFaultDiagnosis
     triage_queue: list[PatientTriageRecord]
@@ -454,6 +457,7 @@ def run_fleet_triage_investigation(
     anatomy: PatientAnatomyVolume,
     cohort: list[dict[str, Any]] | None = None,
     tg142_trends: list[TG142TrendSeries] | None = None,
+    anatomy_cohort: dict[str, PatientAnatomyVolume] | None = None,
     machine_id: str = "TrueBeam-01",
     incident_id: str = "INC-TB01-WK47",
     output_dir: str | Path | None = None,
@@ -462,15 +466,19 @@ def run_fleet_triage_investigation(
     trends = tg142_trends if tg142_trends is not None else generate_tg142_fleet_trends()
     records = cohort if cohort is not None else generate_treatment_week_cohort(machine_id=machine_id)
 
+    # Rotate across real multi-patient OpenKBP anatomies (pt_1, pt_2, pt_3) when cohort supplied
+    anatomy_list = list(anatomy_cohort.values()) if anatomy_cohort else [anatomy]
+
     diagnoses: list[CausalFaultDiagnosis] = []
     triage_records: list[PatientTriageRecord] = []
 
-    for rec in records:
+    for idx, rec in enumerate(records):
         log: TrajectoryLogTensor = rec["log"]
         diag = diagnose_causal_faults(log)
         diagnoses.append(diag)
 
-        impact = compute_perturbative_dose_replay(log, anatomy, n_sectors=8)
+        pt_anat = anatomy_list[idx % len(anatomy_list)]
+        impact = compute_perturbative_dose_replay(log, pt_anat, n_sectors=8)
         assert isinstance(impact, PerturbativeDoseImpact)
         triage_records.append(_score_patient_triage(rec, impact, machine_id=log.machine_id))
 
@@ -480,6 +488,7 @@ def run_fleet_triage_investigation(
     # Aggregate hypothesis falsification across the treatment week
     canonical_faults = [
         "MLC_LEAF_MOTOR_FRICTION",
+        "MLC_COULOMB_STICTION",
         "SYSTEMATIC_DLG_OFFSET",
         "GANTRY_GRAVITY_SAG_HARMONIC",
         "DOSE_RATE_ION_CHAMBER_DRIFT",
@@ -593,10 +602,21 @@ def run_fleet_triage_investigation(
         notes=f"Autonomous Fleet Physicist triage across {len(triage_records)} patients & {len(trends)} linacs.",
     )
 
+    target_trend = next((t for t in trends if t.machine_id == machine_id), trends[0])
+    cutoff_day = min(20, max(5, len(target_trend.days) - 5))
+    rul_forecast = forecast_tg142_kalman_rul(
+        target_trend,
+        metric_name="mlc_max_rms_mm",
+        action_limit=TG142_LIMITS["mlc_rms_action_mm"],
+        observation_cutoff_day=cutoff_day,
+        horizon_days=10,
+    )
+
     ledger = FleetIncidentLedger(
         incident_id=incident_id,
         machine_id=machine_id,
         tg142_trends=trends,
+        rul_forecast=rul_forecast,
         hypothesis_audit=hyp_audit,
         representative_diagnosis=rep_diag,
         triage_queue=triage_records,

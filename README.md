@@ -1,12 +1,13 @@
 # linac-forensics
 
-**Closed-Loop Linac Telemetry, EPID & Perturbative 3D Delivery-Forensics Engine with Frontier Agent Harness & MCP Server**
+**Closed-Loop Linac Telemetry, Three-Way EPID & Heterogeneity-Aware Perturbative 3D Delivery-Forensics Engine with Frontier Agent Harness & MCP Server**
 
 [![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-0072B2.svg)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/version-0.2.0-56B4E9.svg)](pyproject.toml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-009E73.svg)](LICENSE)
 [![Research Software](https://img.shields.io/badge/status-Research%20Software%20%E2%80%94%20NOT%20A%20MEDICAL%20DEVICE-D55E00.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/pytest-30%20passed%20%7C%200%20warnings-009E73.svg)](docs/AUDIT_REPORT.md)
-[![Coverage](https://img.shields.io/badge/coverage-95.4%25-0072B2.svg)](docs/AUDIT_REPORT.md)
+[![Tests](https://img.shields.io/badge/pytest-38%20passed%20%7C%200%20warnings-009E73.svg)](docs/AUDIT_REPORT.md)
+[![Coverage](https://img.shields.io/badge/coverage-95.7%25-0072B2.svg)](docs/AUDIT_REPORT.md)
 [![Ruff](https://img.shields.io/badge/ruff-0%20errors-009E73.svg)](pyproject.toml)
 
 > **Research Software — NOT A MEDICAL DEVICE.**
@@ -16,17 +17,19 @@
 
 ## Why `linac-forensics`?
 
-Consumer AI chat interfaces cannot parse 50 Hz binary Varian TrueBeam trajectory logs (`.bin`), project sub-millimeter MLC aperture errors into 3D patient CT/OAR anatomy, or perform Bayesian causal attribution across coupled electro-mechanical linac subsystems. `linac-forensics` closes the loop between **high-frequency machine telemetry**, **3D anatomy-aware perturbative dosimetry**, **causal hardware fault isolation**, and an **auditable MCP / Agent Harness**:
+Consumer AI chat interfaces cannot parse 50 Hz binary Varian TrueBeam trajectory logs (`.bin`) or legacy Dynalogs (`.dlg`), deconvolve a-Si EPID portal images to catch encoder-blind silent faults, project sub-millimeter MLC aperture errors through CT electron-density heterogeneities into 3D patient OAR anatomy, or run Bayesian causal attribution and Kalman RUL forecasting across a treatment fleet. `linac-forensics` closes the loop across every layer:
 
-- **Native Varian TrueBeam `.bin` Parser & Writer (v3.0 / v4.0 / v5.0)** + vendor-neutral JSON/CSV ingestion with hard **`AbstentionError`** integrity gates (`TIMESTAMP_DESYNC`, `MU_CONSERVATION_VIOLATION`, `UNMAPPED_IEC61217_COORDINATES`, `CORRUPTED_BINARY_LOG`, `INTERLOCK_INCOMPLETE_DELIVERY`).
-- **Fast Perturbative Fluence-to-3D-Dose Replay (`ΔΦ → ΔDose → ΔDVH / ΔgEUD / ΔTCP / ΔNTCP`)** on real open-access **OpenKBP `pt_1` (CC BY 4.0)** 3D head-and-neck anatomy — exposing **Nelms et al. (2011) 2D 3%/2mm Gamma blindspots** while preserving an exact zero-error identity invariant (`actual == expected ⇒ ΔΦ ≡ 0, ΔDose ≡ 0, γ ≡ 100.0%`).
-- **Physics-Informed Electro-Mechanical Causal Attribution (Matched-Filter + Bayesian BIC)** separating:
-  1. Localized MLC leaf motor viscous drag / T-nut friction ($\Delta x_i(t) \approx -\tau_i v_i(t)$)
-  2. Systematic Bank / Dosimetric Leaf Gap (DLG) calibration offset ($\Delta\text{gap} = c$)
-  3. Gantry gravity-sag harmonic ($\Delta y(\theta) = A\sin\theta + B\cos\theta$)
-  4. Monitor ion-chamber / dose-rate calibration drift ($\Delta\text{MU}/\text{MU} = \delta$)
-- **Exact Saltelli–Jansen QMC Global Sobol' Sensitivity** quantifying main (`S₁`) and total-effect (`S_T`) variance drivers of `PTV70 ΔD95` and `SpinalCord ΔD0.03cc`.
-- **Autonomous Fleet Physicist & Incident-Triage Harness + JSON-RPC 2.0 MCP Server** with an independent 6-check **Critic-Verifier Gate** emitting signed Markdown + JSON forensic ledgers.
+- **Native Varian TrueBeam `.bin` (v3.0/v4.0/v5.0) + Legacy Dynalog `.dlg` + JSON/CSV** ingestion with 5 hard **`AbstentionError`** safety gates (`TIMESTAMP_DESYNC`, `MU_CONSERVATION_VIOLATION`, `UNMAPPED_IEC61217_COORDINATES`, `CORRUPTED_BINARY_LOG`, `INTERLOCK_INCOMPLETE_DELIVERY`).
+- **CT-Heterogeneity-Aware Perturbative Fluence-to-3D-Dose Replay (`ΔΦ → ΔDose → ΔDVH / ΔgEUD / ΔTCP / ΔNTCP`)** across a SHA-256 verified **3-patient OpenKBP cohort (`pt_1`, `pt_2`, `pt_3`, CC BY 4.0)** using piecewise-linear HU-to-$\rho_e$ radiological depth & scatter scaling — exposing **Nelms et al. (2011) 2D 3%/2mm Gamma blindspots** while preserving exact zero-error identity (`actual == expected ⇒ ΔΦ ≡ 0, ΔDose ≡ 0, γ ≡ 100.0%`).
+- **Three-Way Closed-Loop EPID Portal Dosimetry Forensics (`Planned TPS` vs. `Trajectory Log` vs. `Measured EPID`)**: catches **encoder-blind silent hardware faults** (slipped optical encoders, unrecorded DLG/jaw drift, or TG-142 beam-steering symmetry tilts) invisible to trajectory logs alone.
+- **5-Mode Electro-Mechanical Causal Attribution (Matched-Filter + Bayesian BIC)** separating:
+  1. Localized MLC leaf motor viscous drag ($\Delta x_i(t) \approx -\tau_i v_i(t)$)
+  2. Nonlinear MLC Coulomb / Stribeck stiction & leadscrew backlash ($\Delta x_i(t) \approx -\beta_i \tanh(v_i / v_0)$)
+  3. Systematic Bank / Dosimetric Leaf Gap (DLG) calibration offset ($\Delta\text{gap} = c$)
+  4. Gantry gravity-sag harmonic ($\Delta y(\theta) = A\sin\theta + B\cos\theta$)
+  5. Monitor ion-chamber / dose-rate calibration drift ($\Delta\text{MU}/\text{MU} = \delta$)
+- **Kalman State-Space Remaining-Useful-Life (RUL) Forecasting & Multi-Fraction Cumulative 3D Dose Accumulation**: predicts TG-142 action-limit breaches with 95% credible envelopes, separates systematic vs. random fraction errors, and computes compensatory remaining-course adaptive MU scaling.
+- **Exact Saltelli–Jansen QMC Global Sobol' Sensitivity**, **Autonomous Fleet Physicist Harness** (with 6-check Critic-Verifier Gate), and an **8-Tool + Resource-Enabled JSON-RPC 2.0 Stdio MCP Server**.
 
 ---
 
@@ -34,41 +37,42 @@ Consumer AI chat interfaces cannot parse 50 Hz binary Varian TrueBeam trajectory
 
 ```mermaid
 flowchart LR
-    A["50 Hz Trajectory Logs<br/>Varian .bin v3/v4/v5 | JSON | CSV"] --> B["Provenance & Hard Abstention Gates<br/>SHA-256 | IEC 61217 | MU | CRC32"]
-    B --> C["Causal Fault Attribution Engine<br/>Matched-Filter + Bayesian BIC/AIC"]
-    B --> D["Perturbative 2D→3D Dose Replay<br/>ΔΦ(u,v) → ΔDose(x,y,z) on OpenKBP pt_1"]
-    E["OpenKBP pt_1 3D CT & ROIs<br/>CC BY 4.0 | SHA-256 Verified"] --> D
-    D --> F["3D ΔDVH, ΔgEUD, ΔTCP/NTCP<br/>2D/3D Gamma & Nelms Blindspots"]
-    D --> G["Saltelli–Jansen QMC Sobol'<br/>Global Sensitivity (S₁, S_T)"]
-    C --> H["Autonomous Fleet Physicist Harness<br/>TG-142 Trends + Patient Triage + Work Order"]
-    F --> H
+    A["50 Hz Trajectory Logs<br/>Varian .bin v3-v5 | Dynalog .dlg | JSON/CSV"] --> B["Provenance & Hard Abstention Gates<br/>SHA-256 | IEC 61217 | MU | CRC32"]
+    B --> C["5-Mode Causal Attribution<br/>Viscous + Stiction + DLG + Sag + MU (BIC)"]
+    B --> D["CT-Heterogeneous 2D→3D Dose Replay<br/>HU→ρ_e + ΔΦ→ΔDose on OpenKBP pt_1–pt_3"]
+    B --> E["Three-Way EPID Forensics<br/>TPS vs Log vs Deconvolved a-Si EPID"]
+    F["OpenKBP pt_1–pt_3 Cohort<br/>CC BY 4.0 | SHA-256 Verified"] --> D
+    D --> G["3D ΔDVH, Multi-Fx Accumulation<br/>Nelms Blindspots & Saltelli Sobol'"]
+    C & E & G --> H["Autonomous Fleet Physicist Harness<br/>Kalman RUL + Triage Queue + Work Order"]
     H --> I["Independent Critic-Verifier Gate<br/>6/6 Checks | JSON + Markdown Ledger"]
-    B & C & D & G & H <--> J["JSON-RPC 2.0 Stdio MCP Server<br/>6 Typed Provenance-Gated Tools"]
+    B & C & D & E & G & H <--> J["JSON-RPC 2.0 Stdio MCP Server<br/>8 Typed Tools + Live Resources"]
 ```
 
 ---
 
-## Verified Benchmark Dashboard
+## Verified Benchmark Dashboard (v0.2.0)
 
-All metrics below are deterministically reproduced by `scripts/run_benchmarks.py` (`results/benchmark_summary.json`) on real **OpenKBP `pt_1`** 3D anatomy paired with controlled synthetic fault-injection telemetry (explicitly tagged in `ProvenanceRecord`):
+All metrics below are deterministically reproduced by `scripts/run_benchmarks.py` ([benchmark_summary.json](results/benchmark_summary.json)) on real **OpenKBP `pt_1`, `pt_2`, `pt_3`** anatomies paired with explicitly provenance-tagged synthetic fault benchmarks:
 
 | Benchmark & Physics Invariant | Measured Result | Reference / Gate |
 | --- | --- | --- |
-| **Varian `.bin` v5.0 Round-Trip (360 × 120 leaves, CRC32)** | Write `1.72 ms`, Parse `3.57 ms`, Max error `5.72 × 10⁻⁶ mm` | IEEE-754 `float32` exact |
-| **Zero-Error Identity Invariant (`actual == expected`)** | `max\|ΔΦ\| = 0.0`, `max\|ΔD\| = 0.0 Gy`, `γ = 100.0%` | Exact machine epsilon |
-| **Single- & Joint 4-Fault BIC Attribution (6 scenarios)** | **6/6 exact classification**, `99.8%–100.0%` joint recovery (`99.6%` var. explained) | 95% CIs cover all ground truths |
-| **Nelms 2D Gamma Blindspot Sweep (32 faulted deliveries)** | **16/16 (100%)** failing plans passed 2D `3%/2mm` (`≥95%`); **16/16 caught** by 3D `2%/1mm` & `ΔDVH` | AAPM TG-218 / Nelms 2011 |
-| **30-Day Fleet TG-142 Drift & 6-Patient Triage Harness** | Early trigger **Day 19** (7 days before **Day 26** breach); Critic Gate **6/6 PASSED** | AAPM TG-142 |
+| **Varian `.bin` v5.0 Round-Trip (360 × 120 leaves, CRC32)** | Write `2.7 ms`, Parse `3.7 ms`, Max error `5.72 × 10⁻⁶ mm` | IEEE-754 `float32` exact |
+| **Zero-Error Identity Invariant (w/ CT HU→$\rho_e$ Heterogeneity)** | `max\|ΔΦ\| = 0.0`, `max\|ΔD\| = 0.0 Gy`, `γ = 100.0%` | Exact machine epsilon |
+| **5-Mode Causal BIC Attribution (Viscous, Stiction, DLG, Sag, MU)** | **Exact classification**; Stiction `0.7015 / 0.70 mm`; Joint 4-fault `99.8%–100.0%` | 95% CIs cover ground truths |
+| **Three-Way EPID Encoder-Blind Silent Fault Detection** | Plan-vs-Log `γ = 100.0%` (blind) → Log-vs-EPID **`γ = 55.4%`** (`max\|ΔΦ\| = 15.2%`) | Caught & classified |
+| **Nelms 2D Gamma Blindspot Sweep (32 faulted deliveries)** | **17/17 (100%)** failing plans passed 2D `3%/2mm` (`≥95%`); **17/17 caught** by 3D `2%/1mm` & `ΔDVH` | AAPM TG-218 / Nelms 2011 |
+| **Kalman State-Space RUL Forecast (Cutoff Day 20)** | Predicted breach in **`6.8 d`** (Day 26.8 vs actual **Day 26**; `72%` 10d breach prob) | `0.8 d` ahead-of-time error |
+| **Multi-Fraction Accumulation (`OpenKBP pt_2`, 5/35 fx)** | Cumulative `PTV70 ΔD95 = -2.64%` (`sys = -2.64%`, `rand = 0.30%`); adaptive MU scale `1.0044` | Real 3D OpenKBP `pt_2` |
 | **Global Sobol' Sensitivity (`N = 3,072` evals/metric)** | `PTV70 ΔD95`: MU (`0.47`), MLC Lag (`0.33`), DLG (`0.18`) · `SpinalCord ΔD0.03cc`: MU (`0.41`), Sag (`0.31`), DLG (`0.21`) | Saltelli 2010 QMC |
 
 ---
 
-## Publication-Grade Figures (300-DPI PNG + PDF, Visually Audited)
+## Publication-Grade Figures (7 × 300-DPI PNG + PDF, Visually Audited)
 
 ### 1. High-Frequency (50 Hz) Trajectory Log Forensics
 ![50 Hz Trajectory Telemetry Forensics](figures/fig1_trajectory_telemetry_forensics.png)
 
-### 2. Fast Perturbative Fluence-to-3D-Dose Replay on OpenKBP `pt_1`
+### 2. Heterogeneity-Aware Perturbative Fluence-to-3D-Dose Replay on OpenKBP `pt_1`
 ![Fluence to 3D Delta Dose on OpenKBP pt_1](figures/fig2_fluence_to_3d_delta_dose.png)
 
 ### 3. Nelms et al. (2011) 2D Gamma Blindspot vs True 3D `ΔDVH`
@@ -83,6 +87,9 @@ All metrics below are deterministically reproduced by `scripts/run_benchmarks.py
 ### 6. Global Saltelli–Jansen QMC Sobol' Sensitivity (`S₁` vs `S_T`)
 ![Global Sobol Sensitivity](figures/fig6_sobol_delivery_sensitivity.png)
 
+### 7. Three-Way EPID Silent Faults, Nonlinear Coulomb Stiction & Kalman RUL Forecasting (v0.2)
+![EPID Three-Way, Coulomb Stiction, and Kalman RUL](figures/fig7_epid_threeway_and_kalman_rul.png)
+
 ---
 
 ## Quickstart
@@ -91,14 +98,14 @@ All metrics below are deterministically reproduced by `scripts/run_benchmarks.py
 # 1. Install dependencies with uv (Python 3.12)
 uv sync --python 3.12 --extra dev
 
-# 2. Verify / fetch OpenKBP pt_1 anatomy (CC BY 4.0, SHA-256 verified)
+# 2. Verify / fetch OpenKBP pt_1, pt_2, pt_3 anatomies (CC BY 4.0, SHA-256 verified)
 uv run python scripts/fetch_openkbp_anatomy.py
 
-# 3. Run full test suite (30 tests, 0 warnings, >= 75% coverage gate) & lint
+# 3. Run full test suite (38 tests, 0 warnings, >= 75% coverage gate) & lint
 uv run pytest --cov=linac_forensics --cov-report=term-missing
 uv run ruff check src tests scripts
 
-# 4. Reproduce all benchmarks and 6 publication-grade figures (300-DPI PNG + PDF)
+# 4. Reproduce all benchmarks and 7 publication-grade figures (300-DPI PNG + PDF)
 uv run python scripts/run_benchmarks.py
 uv run python scripts/generate_figures.py
 ```
@@ -106,51 +113,54 @@ uv run python scripts/generate_figures.py
 ---
 
 <details>
-<summary><strong>Python API Workflow (Binary Log Parse → Causal Attribution → 3D Perturbative DVH)</strong></summary>
+<summary><strong>Python API Workflow (Binary/Dynalog Parse → 5-Mode Causal Attribution → EPID Three-Way → 3D DVH & Kalman RUL)</strong></summary>
 
 ```python
 from pathlib import Path
 from linac_forensics import (
+    analyze_three_way_epid_forensics,
     compute_perturbative_dose_replay,
     diagnose_causal_faults,
+    forecast_tg142_kalman_rul,
     generate_synthetic_vmat_log,
-    load_openkbp_patient,
-    parse_varian_trajectory_bin,
-    write_varian_trajectory_bin,
+    load_openkbp_cohort,
+    simulate_measured_epid_image,
 )
+from linac_forensics.harness.agent_orchestrator import generate_tg142_fleet_trends
 
-# 1. Create and round-trip a Varian TrueBeam v5.0 binary trajectory log (.bin)
+# 1. Diagnose nonlinear Coulomb stiction + systematic DLG offset
 log = generate_synthetic_vmat_log(
-    log_id="TB01_ARC1",
+    log_id="TB01_STICTION_DLG",
     failing_bank="B",
     failing_leaf_index=34,
-    leaf_drag_ms=42.0,
-    dlg_offset_mm=0.55,
-    gantry_sag_sin_mm=0.85,
-    mu_drift_pct=1.6,
-    noise_sigma_mm=0.025,
+    leaf_stiction_mm=0.65,
+    dlg_offset_mm=0.50,
+    noise_sigma_mm=0.02,
 )
-bin_path = write_varian_trajectory_bin(log, Path("results/demo_v5.bin"), header_version="5.0")
-parsed = parse_varian_trajectory_bin(bin_path)
-
-# 2. Causal electro-mechanical fault attribution (matched-filter + Bayesian BIC)
-diag = diagnose_causal_faults(parsed)
+diag = diagnose_causal_faults(log)
 print(diag.primary_root_cause, diag.active_faults, diag.service_recommendation)
 
-# 3. Fast perturbative 3D dose replay on real OpenKBP pt_1 anatomy (CC BY 4.0)
-anatomy = load_openkbp_patient(Path("data/openkbp/pt_1"), verify_manifest=True)
-impact = compute_perturbative_dose_replay(parsed, anatomy)
-print(
-    f"2D γ(3%/2mm)={impact.gamma_2d_3pct_2mm_pass_pct:.1f}% | "
-    f"3D γ(2%/1mm)={impact.gamma_3d_2pct_1mm_pass_pct:.1f}% | "
-    f"Blindspot={impact.gamma_blindspot_detected}"
-)
+# 2. Catch an encoder-blind silent fault via three-way EPID forensics
+nom_log = generate_synthetic_vmat_log(log_id="SILENT_CHECK")
+_, _, epid = simulate_measured_epid_image(nom_log, silent_dlg_bias_mm=1.6, silent_leaf_slip_mm=3.5)
+epid_rep = analyze_three_way_epid_forensics(nom_log, epid)
+print(epid_rep.classification, epid_rep.gamma_plan_vs_log_2pct_1mm, epid_rep.gamma_log_vs_epid_2pct_1mm)
+
+# 3. CT-heterogeneity-aware 3D perturbative replay on real OpenKBP cohort
+cohort = load_openkbp_cohort(Path("data/openkbp"), verify_manifest=True)
+impact = compute_perturbative_dose_replay(log, cohort["pt_1"], use_heterogeneity=True)
+print(f"2D γ(3%/2mm)={impact.gamma_2d_3pct_2mm_pass_pct:.1f}% | 3D γ(2%/1mm)={impact.gamma_3d_2pct_1mm_pass_pct:.1f}%")
+
+# 4. Kalman state-space Remaining-Useful-Life forecast prior to TG-142 breach
+tb01 = generate_tg142_fleet_trends()[0]
+rul = forecast_tg142_kalman_rul(tb01, observation_cutoff_day=20, horizon_days=10)
+print(f"Predicted RUL: {rul.rul_mean_days} days (95% CI {rul.rul_ci95_days})")
 ```
 
 </details>
 
 <details>
-<summary><strong>MCP Server (JSON-RPC 2.0 Stdio) — 6 Provenance-Gated Tools</strong></summary>
+<summary><strong>MCP Server (JSON-RPC 2.0 Stdio) — 8 Provenance-Gated Tools & Live Resources</strong></summary>
 
 Launch the MCP server directly via the installed console entrypoint:
 
@@ -158,22 +168,18 @@ Launch the MCP server directly via the installed console entrypoint:
 uv run linac-forensics-mcp
 ```
 
-Exposed tools (`tools/list`):
+**Exposed Tools (`tools/list`)**:
 1. `linac_parse_trajectory_log` — Parse & validate `.bin` (v3.0/v4.0/v5.0), `.json`, or `.csv` logs with hard abstention gates.
-2. `linac_compute_perturbative_dvh` — 2D fluence → 3D perturbative dose replay (`ΔD95`, `ΔD0.03cc`, `ΔgEUD`, `ΔTCP/NTCP`, 2D/3D Gamma).
-3. `linac_diagnose_causal_fault` — Matched-filter & Bayesian BIC separation of MLC drag, DLG offset, gravity sag, and MU drift.
+2. `linac_compute_perturbative_dvh` — CT-heterogeneity-aware 2D fluence → 3D perturbative dose replay (`ΔD95`, `ΔD0.03cc`, `ΔgEUD`, `ΔTCP/NTCP`, 2D/3D Gamma).
+3. `linac_diagnose_causal_fault` — 5-mode matched-filter & Bayesian BIC attribution (viscous drag, Coulomb stiction, DLG, gravity sag, MU drift).
 4. `linac_compare_gamma_vs_dvh` — Sweep DLG/MLC faults and quantify Nelms et al. (2011) 2D gamma blindspots vs 3D `ΔDVH`.
-5. `linac_triage_patient_fleet` — Full Autonomous Fleet Physicist harness + Critic-Verifier Gate + Service Work Order.
+5. `linac_triage_patient_fleet` — Multi-patient OpenKBP Autonomous Fleet Physicist harness + Kalman RUL + Critic-Verifier Gate.
 6. `linac_run_sobol_sensitivity` — Exact Saltelli–Jansen QMC global Sobol' sensitivity (`S₁`, `S_T`, 95% CIs).
+7. `linac_analyze_epid_three_way` — Three-way TPS vs. Trajectory-Log vs. Deconvolved EPID silent-fault forensics.
+8. `linac_forecast_tg142_rul` — Local-linear-trend Kalman state-space RUL & breach-probability forecasting.
 
-Example JSON-RPC 2.0 invocation over stdio:
-
-```bash
-printf '%s\n' \
-  '{"jsonrpc":"2.0","id":1,"method":"initialize"}' \
-  '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"linac_diagnose_causal_fault","arguments":{"synthetic_faults":{"failing_bank":"B","failing_leaf_index":34,"leaf_drag_ms":42.0,"dlg_offset_mm":0.5}}}}' \
-  | uv run linac-forensics-mcp
-```
+**Exposed Read-Only Resources (`resources/list`, `resources/read`)**:
+- `linac://manifest/openkbp_pt1` · `linac://results/benchmark_summary` · `linac://results/incident_report` · `linac://docs/audit_report`
 
 </details>
 
@@ -184,7 +190,7 @@ printf '%s\n' \
 - [Engine Specification (`docs/ENGINE_SPECIFICATION.md`)](docs/ENGINE_SPECIFICATION.md)
 - [Independent Audit Report (`docs/AUDIT_REPORT.md`)](docs/AUDIT_REPORT.md)
 - [Data Sources, Licenses & BibTeX (`DATA_SOURCES_AND_CITATIONS.md`)](DATA_SOURCES_AND_CITATIONS.md)
-- [OpenKBP `pt_1` Attribution (`data/openkbp/ATTRIBUTION.md`)](data/openkbp/ATTRIBUTION.md) & [SHA-256 Manifest (`data/openkbp/pt_1/MANIFEST.json`)](data/openkbp/pt_1/MANIFEST.json)
+- [OpenKBP `pt_1`–`pt_3` Attribution (`data/openkbp/ATTRIBUTION.md`)](data/openkbp/ATTRIBUTION.md)
 - [Citation Metadata (`CITATION.cff`)](CITATION.cff)
 
 ### Key Scientific References

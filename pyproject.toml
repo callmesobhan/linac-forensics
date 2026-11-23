@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "linac-forensics"
-version = "0.1.0"
+version = "0.2.0"
 description = "Closed-Loop Linac Telemetry, EPID & Perturbative 3D Delivery-Forensics Engine with Frontier Agent Harness & MCP Server (Research Software — NOT A MEDICAL DEVICE)"
 readme = "README.md"
 license = { file = "LICENSE" }

@@ -237,9 +237,9 @@
         "sha256_inputs": {
           "config": "e4731013b91c364bdc8da8a2e8720883fb6cbc22eb5afefb61cf336470bfd8c7"
         },
-        "engine_version": "0.1.0",
+        "engine_version": "0.2.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:19:04.872909+00:00",
+        "created_utc": "2026-11-23T22:47:58.285965+00:00",
         "notes": "30-day synthetic TG-142/MPC QA series (degrading_mlc_dlg)."
       }
     },
@@ -478,9 +478,9 @@
         "sha256_inputs": {
           "config": "43595a891e50886219d0310c05ee78358935d824663e0bd0b6002c34188c3789"
         },
-        "engine_version": "0.1.0",
+        "engine_version": "0.2.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:19:04.872978+00:00",
+        "created_utc": "2026-11-23T22:47:58.286046+00:00",
         "notes": "30-day synthetic TG-142/MPC QA series (nominal_stable)."
       }
     },
@@ -719,20 +719,103 @@
         "sha256_inputs": {
           "config": "fccd448367e23125b16147a48e091209f2b6bedf4668c48a4f4ad4cb632cfa3d"
         },
-        "engine_version": "0.1.0",
+        "engine_version": "0.2.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:19:04.873039+00:00",
+        "created_utc": "2026-11-23T22:47:58.286112+00:00",
         "notes": "30-day synthetic TG-142/MPC QA series (mild_output_drift)."
       }
     }
   ],
+  "rul_forecast": {
+    "machine_id": "TrueBeam-01",
+    "metric_name": "mlc_max_rms_mm",
+    "action_limit": 0.7,
+    "observation_cutoff_day": 20,
+    "horizon_days": 10,
+    "forecast_days": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+    ],
+    "forecast_mean": [
+      0.4733,
+      0.5123,
+      0.5514,
+      0.5905,
+      0.6296,
+      0.6687,
+      0.7077,
+      0.7468,
+      0.7859,
+      0.825
+    ],
+    "forecast_ci95_low": [
+      0.3926,
+      0.4077,
+      0.4183,
+      0.4252,
+      0.4289,
+      0.4299,
+      0.4284,
+      0.4245,
+      0.4185,
+      0.4104
+    ],
+    "forecast_ci95_high": [
+      0.554,
+      0.617,
+      0.6846,
+      0.7558,
+      0.8302,
+      0.9074,
+      0.987,
+      1.0691,
+      1.1533,
+      1.2395
+    ],
+    "estimated_drift_rate_per_day": 0.03908,
+    "rul_mean_days": 6.8,
+    "rul_ci95_days": [
+      3.63,
+      23.88
+    ],
+    "breach_probability_within_horizon": 0.7227,
+    "maintenance_recommendation": "PROACTIVE SERVICE ALERT: Predicted breach of mlc_max_rms_mm (0.7) in 6.8 days (95% CI (3.63, 23.88); 10-day breach prob=72%). Schedule preventive MLC/DLG service prior to clinical lockout.",
+    "provenance": {
+      "record_id": "kalman_rul:TrueBeam-01:mlc_max_rms_mm:d20",
+      "provenance_tag": "SYNTHETIC_TG142_FLEET_DRIFT",
+      "dataset_source": "linac-forensics 30-day AAPM TG-142 / MPC Drift Benchmark",
+      "sha256_inputs": {
+        "config": "e4731013b91c364bdc8da8a2e8720883fb6cbc22eb5afefb61cf336470bfd8c7",
+        "rul_config": "375f0f937a6f771f1fe7a7a3b8a3675ac0842debbd2e939ad832f83b6d5fd358"
+      },
+      "engine_version": "0.2.0",
+      "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+      "created_utc": "2026-11-23T22:47:59.528167+00:00",
+      "notes": "Local-linear-trend Kalman RUL forecast from Day 20 (+10d)."
+    }
+  },
   "hypothesis_audit": [
     {
       "hypothesis": "MLC_LEAF_MOTOR_FRICTION",
       "status": "SUPPORTED",
       "evidence_summary": "Detected in 6/6 logs (mean \u0394BIC=+11441.9, SNR=155.4).",
-      "mean_delta_bic_vs_null": 11441.93,
+      "mean_delta_bic_vs_null": 11441.9,
       "mean_snr": 155.38
+    },
+    {
+      "hypothesis": "MLC_COULOMB_STICTION",
+      "status": "FALSIFIED",
+      "evidence_summary": "Falsified numerically (0/6 detections; mean \u0394BIC=-9.2).",
+      "mean_delta_bic_vs_null": -9.18,
+      "mean_snr": 1.05
     },
     {
       "hypothesis": "SYSTEMATIC_DLG_OFFSET",
@@ -775,11 +858,11 @@
           "active_faults": "MLC_LEAF_MOTOR_FRICTION,SYSTEMATIC_DLG_OFFSET,GANTRY_GRAVITY_SAG_HARMONIC,DOSE_RATE_ION_CHAMBER_DRIFT"
         },
         "parameter_ci95": {},
-        "rss": 2394.402594,
+        "rss": 2394.510781,
         "n_params": 5,
-        "aic": -13605.823,
-        "bic": -13569.914,
-        "delta_bic_vs_null": 61066.586,
+        "aic": -13605.384,
+        "bic": -13569.475,
+        "delta_bic_vs_null": 61066.147,
         "posterior_weight": 1.0,
         "matched_filter_snr": 507.129,
         "detected": true
@@ -790,22 +873,22 @@
         "parameters": {
           "bank": "B",
           "leaf_index": 34,
-          "tau_ms": 44.962,
+          "tau_ms": 44.944,
           "n_flagged_leaves": 1
         },
         "parameter_ci95": {
           "tau_ms": [
-            44.911,
-            45.012
+            44.841,
+            45.048
           ]
         },
-        "rss": 572422.463062,
+        "rss": 572422.576155,
         "n_params": 1,
-        "aic": 39614.647,
-        "bic": 39621.829,
-        "delta_bic_vs_null": 7874.843,
+        "aic": 39614.649,
+        "bic": 39621.831,
+        "delta_bic_vs_null": 7874.841,
         "posterior_weight": 0.0,
-        "matched_filter_snr": 179.848,
+        "matched_filter_snr": 179.778,
         "detected": true
       },
       {
@@ -891,6 +974,23 @@
         "posterior_weight": 0.0,
         "matched_filter_snr": 41.684,
         "detected": true
+      },
+      {
+        "fault_type": "MLC_COULOMB_STICTION",
+        "description": "Nonlinear Coulomb/Stribeck stiction & leadscrew backlash: \u0394x_i(t) \u2248 -\u03b2_i * tanh(v_i/v_0).",
+        "parameters": {
+          "n_flagged_leaves": 0,
+          "stiction_mm": 0.0
+        },
+        "parameter_ci95": {},
+        "rss": 1288294.358621,
+        "n_params": 1,
+        "aic": 47498.672,
+        "bic": 47505.854,
+        "delta_bic_vs_null": -9.182,
+        "posterior_weight": 0.0,
+        "matched_filter_snr": 1.43,
+        "detected": false
       }
     ],
     "flagged_leaves": [
@@ -899,13 +999,18 @@
         "leaf_index": 34,
         "rms_error_mm": 3.17721,
         "max_error_mm": 6.67817,
-        "velocity_lag_ms": 44.962,
+        "velocity_lag_ms": 44.944,
         "velocity_lag_ci95_ms": [
-          44.911,
-          45.012
+          44.841,
+          45.048
         ],
         "velocity_correlation_r": 1.0,
-        "systematic_offset_mm": 0.38915,
+        "stiction_amplitude_mm": 0.0015,
+        "stiction_ci95_mm": [
+          -0.006,
+          0.0089
+        ],
+        "systematic_offset_mm": 0.38894,
         "is_flagged": true
       }
     ],
@@ -923,37 +1028,22 @@
     ],
     "residual_rms_mm": 0.02503,
     "variance_explained_pct": 99.814,
-    "service_recommendation": "Inspect/replace MLC motor & T-nut assembly for Bank B Leaf #34 (\u03c4=45.0 ms); Re-initialize MLC banks & recalibrate DLG (observed offset -0.779 mm); Perform Winston-Lutz / gantry bearing & carriage flex check (sag amp 0.21 mm @ 14\u00b0); Verify TG-51 / monitor ion-chamber gain calibration (drift -0.30%).",
+    "service_recommendation": "Inspect/replace MLC motor & T-nut assembly for Bank B Leaf #34 (\u03c4=44.9 ms); Re-initialize MLC banks & recalibrate DLG (observed offset -0.779 mm); Perform Winston-Lutz / gantry bearing & carriage flex check (sag amp 0.21 mm @ 14\u00b0); Verify TG-51 / monitor ion-chamber gain calibration (drift -0.30%).",
     "provenance": {
       "record_id": "causal:TrueBeam-01_PT-SBRT-003_WK1",
       "provenance_tag": "SYNTHETIC_FAULT_INJECTION_BENCHMARK",
       "dataset_source": "linac-forensics Synthetic VMAT Trajectory Fault-Injection Suite",
       "sha256_inputs": {
-        "fault_config": "c8245a0f82a9f714d08ea3f5025f25cdc0b61c0edaf48ef469c423a166601c8c",
+        "fault_config": "e6744abf2b896b71122be309bf1943e89e6c82b97822d6c300fdc7cf57461147",
         "diagnosis_summary": "c648d036a69a6d49b4d86f165ad9f7e93c43646ff42b24eadb899852922d771e"
       },
-      "engine_version": "0.1.0",
+      "engine_version": "0.2.0",
       "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-      "created_utc": "2026-11-23T22:19:05.139487+00:00",
-      "notes": "BIC causal attribution across 9719 standardized telemetry observations."
+      "created_utc": "2026-11-23T22:47:58.708027+00:00",
+      "notes": "BIC causal attribution across 9719 standardized observations (viscous + stiction + DLG + sag + MU)."
     }
   },
   "triage_queue": [
-    {
-      "patient_id": "PT-HN-002",
-      "plan_id": "VMAT_NPC_ReIrrad",
-      "machine_id": "TrueBeam-01",
-      "treatment_site": "Nasopharynx Re-Irradiation",
-      "fractions_affected": 5,
-      "gamma_2d_3pct_2mm_pass_pct": 100.0,
-      "delta_d95_ptv_pct": 2.231,
-      "delta_d003cc_oar_gy": 2.399,
-      "critical_oar_name": "Mandible",
-      "clinical_risk_score": 81.67,
-      "triage_priority": "CRITICAL",
-      "gamma_blindspot": true,
-      "recommended_action": "Hold next fraction pending QMP 3D dose accumulation review; evaluate adaptive replanning or compensatory fraction adjustment."
-    },
     {
       "patient_id": "PT-HN-001",
       "plan_id": "VMAT_HN_SIB_70Gy",
@@ -961,43 +1051,28 @@
       "treatment_site": "Head & Neck SIB (OpenKBP pt_1)",
       "fractions_affected": 5,
       "gamma_2d_3pct_2mm_pass_pct": 100.0,
-      "delta_d95_ptv_pct": 1.999,
-      "delta_d003cc_oar_gy": 2.129,
+      "delta_d95_ptv_pct": 2.096,
+      "delta_d003cc_oar_gy": 2.301,
       "critical_oar_name": "Mandible",
-      "clinical_risk_score": 73.92,
+      "clinical_risk_score": 78.05,
       "triage_priority": "CRITICAL",
       "gamma_blindspot": true,
       "recommended_action": "Hold next fraction pending QMP 3D dose accumulation review; evaluate adaptive replanning or compensatory fraction adjustment."
     },
     {
-      "patient_id": "PT-LG-005",
-      "plan_id": "VMAT_Lung_60Gy",
+      "patient_id": "PT-HN-002",
+      "plan_id": "VMAT_NPC_ReIrrad",
       "machine_id": "TrueBeam-01",
-      "treatment_site": "Stage III NSCLC",
-      "fractions_affected": 4,
-      "gamma_2d_3pct_2mm_pass_pct": 100.0,
-      "delta_d95_ptv_pct": 1.573,
-      "delta_d003cc_oar_gy": 1.532,
-      "critical_oar_name": "Mandible",
-      "clinical_risk_score": 56.15,
-      "triage_priority": "HIGH",
-      "gamma_blindspot": true,
-      "recommended_action": "Priority QMP physicist chart audit & patient-specific 3D QA verification prior to next fraction."
-    },
-    {
-      "patient_id": "PT-PR-004",
-      "plan_id": "VMAT_Prostate_78Gy",
-      "machine_id": "TrueBeam-01",
-      "treatment_site": "Prostate + Seminal Vesicles",
+      "treatment_site": "Nasopharynx Re-Irradiation",
       "fractions_affected": 5,
       "gamma_2d_3pct_2mm_pass_pct": 100.0,
-      "delta_d95_ptv_pct": 1.333,
-      "delta_d003cc_oar_gy": 1.261,
-      "critical_oar_name": "Mandible",
-      "clinical_risk_score": 50.25,
-      "triage_priority": "HIGH",
-      "gamma_blindspot": false,
-      "recommended_action": "Priority QMP physicist chart audit & patient-specific 3D QA verification prior to next fraction."
+      "delta_d95_ptv_pct": 1.808,
+      "delta_d003cc_oar_gy": 2.065,
+      "critical_oar_name": "RightParotid",
+      "clinical_risk_score": 69.89,
+      "triage_priority": "CRITICAL",
+      "gamma_blindspot": true,
+      "recommended_action": "Hold next fraction pending QMP 3D dose accumulation review; evaluate adaptive replanning or compensatory fraction adjustment."
     },
     {
       "patient_id": "PT-SBRT-003",
@@ -1006,13 +1081,43 @@
       "treatment_site": "Thoracic Spine SBRT",
       "fractions_affected": 3,
       "gamma_2d_3pct_2mm_pass_pct": 100.0,
-      "delta_d95_ptv_pct": -2.554,
-      "delta_d003cc_oar_gy": -0.74,
-      "critical_oar_name": "LeftParotid",
-      "clinical_risk_score": 46.86,
+      "delta_d95_ptv_pct": -3.28,
+      "delta_d003cc_oar_gy": -0.496,
+      "critical_oar_name": "Brainstem",
+      "clinical_risk_score": 56.0,
       "triage_priority": "CRITICAL",
       "gamma_blindspot": true,
       "recommended_action": "Hold next fraction pending QMP 3D dose accumulation review; evaluate adaptive replanning or compensatory fraction adjustment."
+    },
+    {
+      "patient_id": "PT-PR-004",
+      "plan_id": "VMAT_Prostate_78Gy",
+      "machine_id": "TrueBeam-01",
+      "treatment_site": "Prostate + Seminal Vesicles",
+      "fractions_affected": 5,
+      "gamma_2d_3pct_2mm_pass_pct": 100.0,
+      "delta_d95_ptv_pct": 1.39,
+      "delta_d003cc_oar_gy": 1.367,
+      "critical_oar_name": "Mandible",
+      "clinical_risk_score": 52.74,
+      "triage_priority": "HIGH",
+      "gamma_blindspot": false,
+      "recommended_action": "Priority QMP physicist chart audit & patient-specific 3D QA verification prior to next fraction."
+    },
+    {
+      "patient_id": "PT-LG-005",
+      "plan_id": "VMAT_Lung_60Gy",
+      "machine_id": "TrueBeam-01",
+      "treatment_site": "Stage III NSCLC",
+      "fractions_affected": 4,
+      "gamma_2d_3pct_2mm_pass_pct": 100.0,
+      "delta_d95_ptv_pct": 1.315,
+      "delta_d003cc_oar_gy": 1.405,
+      "critical_oar_name": "RightParotid",
+      "clinical_risk_score": 50.11,
+      "triage_priority": "HIGH",
+      "gamma_blindspot": false,
+      "recommended_action": "Priority QMP physicist chart audit & patient-specific 3D QA verification prior to next fraction."
     },
     {
       "patient_id": "PT-BR-006",
@@ -1021,10 +1126,10 @@
       "treatment_site": "Whole Breast Hypofrac",
       "fractions_affected": 5,
       "gamma_2d_3pct_2mm_pass_pct": 100.0,
-      "delta_d95_ptv_pct": 0.744,
-      "delta_d003cc_oar_gy": 0.531,
-      "critical_oar_name": "Mandible",
-      "clinical_risk_score": 29.86,
+      "delta_d95_ptv_pct": 0.663,
+      "delta_d003cc_oar_gy": 0.484,
+      "critical_oar_name": "RightParotid",
+      "clinical_risk_score": 27.87,
       "triage_priority": "MODERATE",
       "gamma_blindspot": false,
       "recommended_action": "Log cumulative delivery deviation in patient chart; verify on post-repair fraction."
@@ -1035,7 +1140,7 @@
     "machine_id": "TrueBeam-01",
     "urgency": "IMMEDIATE_LOCKOUT",
     "isolated_subsystems": [
-      "MLC Bank B Leaf #34 Motor / T-Nut (\u03c4=45.0 ms)",
+      "MLC Bank B Leaf #34 Motor / T-Nut (\u03c4=44.9 ms)",
       "MLC Bank Calibration / DLG (-0.779 mm)",
       "Gantry Head / Carriage Flex (0.21 mm harmonic)",
       "Monitor Ion-Chamber Gain (-0.30%)"
@@ -1094,9 +1199,9 @@
       "openkbp/PTV56.csv": "1c76ce104f9931df1dee422c6fe2270abbf865082bacbccbda96a92883de2873",
       "critic_gate": "2f17f4b9ee2213de8f480f534fc472e1e028e14f647f6081a9729a3660a857b9"
     },
-    "engine_version": "0.1.0",
+    "engine_version": "0.2.0",
     "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-    "created_utc": "2026-11-23T22:19:05.641560+00:00",
+    "created_utc": "2026-11-23T22:47:59.527339+00:00",
     "notes": "Autonomous Fleet Physicist triage across 6 patients & 3 linacs."
   }
 }
