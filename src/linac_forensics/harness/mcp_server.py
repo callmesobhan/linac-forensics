@@ -52,6 +52,10 @@ from linac_forensics.log_parser import (
 )
 from linac_forensics.perturbative_dose import compute_perturbative_dose_replay
 from linac_forensics.predictive_rul import forecast_tg142_kalman_rul
+from linac_forensics.robustness_certificate import (
+    compute_fleet_routing_matrix,
+    simulate_counterfactual_leaf_outage,
+)
 from linac_forensics.sobol_sensitivity import run_delivery_sobol_sensitivity
 
 MCP_PROTOCOL_VERSION = "2024-11-05"
@@ -183,6 +187,40 @@ TOOL_SPECS: list[dict[str, Any]] = [
                 "action_limit": {"type": "number", "default": 0.70},
                 "observation_cutoff_day": {"type": "integer", "default": 20},
                 "horizon_days": {"type": "integer", "default": 10},
+            },
+        },
+    },
+    {
+        "name": "linac_certify_plan_robustness",
+        "description": (
+            "Compute plan-specific inverse mechanical tolerance budgets, 95% ellipsoidal "
+            "adversarial Delivery Robustness Certificates, TG-142 stealth-risk detection, "
+            "and a fleet-wide linac-to-patient safe-routing transfer matrix."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "anatomy_dir": {"type": "string", "description": "Optional OpenKBP patient directory."},
+            },
+        },
+    },
+    {
+        "name": "linac_simulate_leaf_outage",
+        "description": (
+            "Counterfactual 3D perturbative ΔDVH replay evaluating whether a patient can be "
+            "safely treated if a failing MLC leaf is locked parked/closed or adjacent-leaf compensated."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "anatomy_dir": {"type": "string"},
+                "outage_bank": {"type": "string", "enum": ["A", "B"], "default": "B"},
+                "outage_leaf_index": {"type": "integer", "default": 34, "minimum": 1, "maximum": 60},
+                "compensation_mode": {
+                    "type": "string",
+                    "enum": ["PARKED_CLOSED", "ADJACENT_LEAF_AVERAGE"],
+                    "default": "PARKED_CLOSED",
+                },
             },
         },
     },
@@ -377,6 +415,30 @@ def dispatch_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
             horizon_days=int(arguments.get("horizon_days", 10)),
         )
         return forecast.model_dump()
+
+    if name == "linac_certify_plan_robustness":
+        openkbp_root = REPO_ROOT / "data" / "openkbp"
+        if arguments.get("anatomy_dir"):
+            anat = load_openkbp_patient(arguments["anatomy_dir"])
+            cohort = {anat.patient_id: anat}
+        elif openkbp_root.exists():
+            cohort = load_openkbp_cohort(openkbp_root)
+        else:
+            ph = build_synthetic_phantom_anatomy()
+            cohort = {ph.patient_id: ph}
+        routing = compute_fleet_routing_matrix(cohort)
+        return routing.model_dump()
+
+    if name == "linac_simulate_leaf_outage":
+        anatomy = _load_anatomy_from_args(arguments)
+        rep = simulate_counterfactual_leaf_outage(
+            anatomy=anatomy,
+            patient_id=anatomy.patient_id,
+            outage_bank=str(arguments.get("outage_bank", "B")),  # type: ignore[arg-type]
+            outage_leaf_index=int(arguments.get("outage_leaf_index", 34)),
+            compensation_mode=str(arguments.get("compensation_mode", "PARKED_CLOSED")),  # type: ignore[arg-type]
+        )
+        return rep.model_dump()
 
     raise KeyError(f"Unknown MCP tool: {name}")
 

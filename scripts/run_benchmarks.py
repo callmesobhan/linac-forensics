@@ -40,6 +40,10 @@ from linac_forensics.predictive_rul import (
     accumulate_multifraction_course,
     forecast_tg142_kalman_rul,
 )
+from linac_forensics.robustness_certificate import (
+    compute_fleet_routing_matrix,
+    simulate_counterfactual_leaf_outage,
+)
 from linac_forensics.sobol_sensitivity import run_delivery_sobol_sensitivity
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -270,6 +274,15 @@ def run_all_benchmarks() -> dict[str, Any]:
         fx_logs, openkbp_cohort["pt_2"], total_prescribed_fractions=35, n_sectors=8
     )
 
+    # 8. v0.3.0 Benchmarks: Inverse Plan Tolerance Budgets, Adversarial Robustness & Fleet Routing
+    routing_matrix = compute_fleet_routing_matrix(openkbp_cohort)
+    outage_parked = simulate_counterfactual_leaf_outage(
+        anatomy, outage_bank="B", outage_leaf_index=34, compensation_mode="PARKED_CLOSED"
+    )
+    outage_adj = simulate_counterfactual_leaf_outage(
+        anatomy, outage_bank="B", outage_leaf_index=34, compensation_mode="ADJACENT_LEAF_AVERAGE"
+    )
+
     summary: dict[str, Any] = {
         "research_notice": "Research Software — NOT A MEDICAL DEVICE",
         "anatomy_source": anatomy.anatomy_source,
@@ -324,6 +337,19 @@ def run_all_benchmarks() -> dict[str, Any]:
             },
             "kalman_rul_forecast_day20": rul_tb01.model_dump(),
             "multifraction_accumulation_pt2": multifx_rep.model_dump(),
+        },
+        "v03_robustness_certificates": {
+            "n_stealth_tg142_risks": routing_matrix.n_stealth_tg142_risks,
+            "safety_margin_matrix": routing_matrix.safety_margin_matrix,
+            "routing_recommendations": [
+                r.model_dump() for r in routing_matrix.routing_recommendations
+            ],
+            "budgets_dlg_max_safe_mm": {
+                b.patient_id: b.max_safe_tolerances["dlg_offset_mm"]
+                for b in routing_matrix.budgets
+            },
+            "leaf_outage_parked_closed": outage_parked.model_dump(),
+            "leaf_outage_adjacent_avg": outage_adj.model_dump(),
         },
     }
     out_path = RESULTS_DIR / "benchmark_summary.json"

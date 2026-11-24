@@ -19,9 +19,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle
+from matplotlib.patches import Ellipse, Patch, Rectangle
 
-from linac_forensics.anatomy import load_openkbp_patient
+from linac_forensics.anatomy import load_openkbp_cohort, load_openkbp_patient
 from linac_forensics.causal_fault_model import diagnose_causal_faults
 from linac_forensics.epid_forensics import (
     EPIDThreeWayArrays,
@@ -39,6 +39,10 @@ from linac_forensics.perturbative_dose import (
     compute_perturbative_dose_replay,
 )
 from linac_forensics.predictive_rul import forecast_tg142_kalman_rul
+from linac_forensics.robustness_certificate import (
+    STATIC_TG142_LIMITS,
+    compute_fleet_routing_matrix,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OPENKBP_PT1 = REPO_ROOT / "data" / "openkbp" / "pt_1"
@@ -982,7 +986,190 @@ def make_fig7_epid_stiction_kalman_rul() -> None:
     _save_fig(
         fig,
         "fig7_epid_threeway_and_kalman_rul",
-        "Provenance: EPID_THREE_WAY_FORENSICS + SYNTHETIC_FAULT_INJECTION_BENCHMARK + SYNTHETIC_TG142_FLEET_DRIFT | Research Software — NOT A MEDICAL DEVICE",
+        "Provenance: EPID_THREE_WAY_FORENSICS + SYNTHETIC_FAULT_INJECTION_BENCHMARK + SYNTHETIC_TG142_FLEET_DRIFT | Non-Commercial Research Software — NOT A MEDICAL DEVICE",
+    )
+
+
+def make_fig8_delivery_robustness_and_routing() -> None:
+    """Fig 8: Inverse Plan Tolerance Budgets, Fleet-Safe Routing Matrix & Adversarial Ellipsoid."""
+    cohort = load_openkbp_cohort(REPO_ROOT / "data" / "openkbp", verify_manifest=True)
+    routing = compute_fleet_routing_matrix(cohort)
+
+    fig = plt.figure(figsize=(15.2, 5.1))
+    gs = fig.add_gridspec(
+        1, 3, width_ratios=[1.12, 1.15, 1.18], wspace=0.34, left=0.095, right=0.975, top=0.84, bottom=0.18
+    )
+
+    # Panel A: Plan-Specific Inverse DLG Tolerance Budget vs Static TG-142
+    ax1 = fig.add_subplot(gs[0, 0])
+    _panel_label(ax1, "A", x=-0.24)
+    budgets = routing.budgets
+    p_labels = [f"{b.patient_id}\n({b.treatment_site.split('(')[0].strip()})" for b in budgets]
+    dlg_lims = [b.max_safe_tolerances["dlg_offset_mm"] for b in budgets]
+    tg_dlg = STATIC_TG142_LIMITS["dlg_offset_mm"]
+    tb01_dlg = abs(routing.fingerprints[0].mean_vector["dlg_offset_mm"])
+
+    y_pos = np.arange(len(budgets))
+    bar_cols = [OI["vermillion"] if v < tg_dlg else OI["green"] for v in dlg_lims]
+    ax1.barh(y_pos, dlg_lims, height=0.58, color=bar_cols, alpha=0.86, edgecolor=OI["black"], lw=0.8)
+    ax1.axvline(tg_dlg, color=OI["black"], lw=1.6, ls="--", label=f"Static TG-142 ({tg_dlg:.2f} mm)")
+    ax1.axvline(tb01_dlg, color=OI["orange"], lw=1.6, ls=":", label=f"Live TrueBeam-01 ({tb01_dlg:.2f} mm)")
+    for idx, val in enumerate(dlg_lims):
+        ax1.text(val + 0.05, idx, f"{val:.2f} mm", va="center", ha="left", fontsize=7.9, fontweight="bold")
+
+    ax1.set_yticks(y_pos)
+    ax1.set_yticklabels(p_labels, fontsize=7.8)
+    ax1.invert_yaxis()
+    ax1.set_xlim(0.0, max(dlg_lims) + 0.60)
+    ax1.set_xlabel("Max Safe |ΔDLG| Budget (mm)")
+    ax1.set_title("Inverse Plan DLG Budgets vs TG-142")
+    ax1.legend(loc="upper right", fontsize=7.4)
+
+    # Panel B: Fleet-Wide Linac-to-Patient Safe-Routing Matrix (All 3 Linacs Passing TG-142)
+    ax2 = fig.add_subplot(gs[0, 1])
+    _panel_label(ax2, "B", x=-0.16)
+    mids = routing.machine_ids
+    pids = routing.patient_ids
+    mat = np.array([[routing.safety_margin_matrix[p][m] for m in mids] for p in pids], dtype=np.float64)
+    recs_by_p = {r.patient_id: r for r in routing.routing_recommendations}
+
+    # Log-clipped visual map centered around 1.0x safety boundary
+    im = ax2.imshow(np.clip(mat, 0.0, 3.0), cmap="RdYlGn", vmin=0.1, vmax=2.4, aspect="auto")
+    for r_i, pid in enumerate(pids):
+        rec = recs_by_p[pid]
+        for c_i, mid in enumerate(mids):
+            val = mat[r_i, c_i]
+            is_best = rec.recommended_machine_id == mid
+            tag = ""
+            if val < 1.0:
+                tag = "\nSTEALTH"
+            elif is_best and rec.transfer_required:
+                tag = "\n★ MOVE"
+            elif is_best:
+                tag = "\n★ KEEP"
+            txt_col = "white" if (val < 0.65 or val > 2.05) else OI["black"]
+            ax2.text(
+                c_i,
+                r_i,
+                f"{val:.2f}×{tag}",
+                ha="center",
+                va="center",
+                fontsize=7.6,
+                fontweight="bold" if (val < 1.0 or is_best) else "normal",
+                color=txt_col,
+            )
+
+    ax2.set_xticks(range(len(mids)))
+    ax2.set_xticklabels([f"{m}\n(PASS TG-142)" for m in mids], fontsize=7.8)
+    ax2.set_yticks(range(len(pids)))
+    ax2.set_yticklabels(pids, fontsize=8.0)
+    ax2.set_title(f"Fleet Safe-Routing Matrix ({routing.n_stealth_tg142_risks} Stealth Risks)")
+    ax2.grid(False)
+    cb = fig.colorbar(im, ax=ax2, fraction=0.046, pad=0.03)
+    cb.set_label("Worst-Case 95% Safety Margin (×)", fontsize=8.2)
+
+    # Panel C: 2D Failure Polytope vs TG-142 Box vs 95% Linac Ellipsoid (ΔDLG vs MU Drift)
+    ax3 = fig.add_subplot(gs[0, 2])
+    _panel_label(ax3, "C")
+    fp1, fp2 = routing.fingerprints[0], routing.fingerprints[1]
+    b_hn = routing.budgets[0]  # PT-HN-001
+    b_pr = routing.budgets[4]  # PT-PR-005
+
+    # Static TG-142 box: DLG in [-0.50, 0.50], MU in [-2.0, 2.0]
+    ax3.add_patch(
+        Rectangle(
+            (-0.50, -2.0),
+            1.00,
+            4.00,
+            facecolor="#F3F4F6",
+            edgecolor=OI["gray"],
+            lw=1.4,
+            ls="--",
+            label="Static TG-142 Pass Box",
+        )
+    )
+
+    # Plot clinical failure boundaries |J_dlg * dlg + J_mu * mu| = L_ptv
+    dlg_x = np.linspace(-0.62, 0.72, 200)
+    for b_obj, col, lbl in (
+        (b_hn, OI["vermillion"], "H&N SIB Clinical Limit (|ΔD95|=2%)"),
+        (b_pr, OI["green"], "Prostate Clinical Limit (|ΔD95|=2%)"),
+    ):
+        jd = b_obj.ptv_jacobian["dlg_offset_mm"]
+        jm = max(abs(b_obj.ptv_jacobian["mu_drift_pct"]), 1e-3) * np.sign(
+            b_obj.ptv_jacobian["mu_drift_pct"] or 1.0
+        )
+        mu_hi = (b_obj.ptv_d95_limit_pct - jd * dlg_x) / jm
+        ax3.plot(dlg_x, mu_hi, color=col, lw=2.0, ls="-", label=lbl)
+
+    # 95% Ellipsoids for TrueBeam-01 (drifting but passing TG-142) & TrueBeam-02 (calibrated)
+    scale_95 = 2.2414
+    for fp, col, lbl in (
+        (fp1, OI["orange"], "TrueBeam-01 95% Ellipsoid"),
+        (fp2, OI["blue"], "TrueBeam-02 95% Ellipsoid"),
+    ):
+        cx, cy = fp.mean_vector["dlg_offset_mm"], fp.mean_vector["mu_drift_pct"]
+        rx = scale_95 * fp.std_vector["dlg_offset_mm"]
+        ry = scale_95 * fp.std_vector["mu_drift_pct"]
+        ax3.add_patch(
+            Ellipse(
+                (cx, cy),
+                width=2.0 * rx,
+                height=2.0 * ry,
+                facecolor=col,
+                alpha=0.28,
+                edgecolor=col,
+                lw=1.8,
+                label=lbl,
+            )
+        )
+        ax3.scatter([cx], [cy], color=col, edgecolor=OI["black"], s=36, zorder=6)
+
+    # Mark exact adversarial worst-case point θ*_adv for (PT-HN-001, TrueBeam-01)
+    cert_hn_tb01 = next(
+        c for c in routing.certificates if c.patient_id == "PT-HN-001" and c.machine_id == "TrueBeam-01"
+    )
+    ax_adv = cert_hn_tb01.adversarial_fault_vector["dlg_offset_mm"]
+    ay_adv = cert_hn_tb01.adversarial_fault_vector["mu_drift_pct"]
+    ax3.scatter(
+        [ax_adv],
+        [ay_adv],
+        marker="*",
+        s=145,
+        color=OI["vermillion"],
+        edgecolor=OI["black"],
+        lw=0.8,
+        zorder=8,
+        label="Adversarial θ*_adv (Breach)",
+    )
+    ax3.annotate(
+        "Passes TG-142,\nBreaches H&N!",
+        xy=(ax_adv, ay_adv),
+        xytext=(-0.46, 1.38),
+        fontsize=7.6,
+        fontweight="bold",
+        color="#9B2C00",
+        bbox={"boxstyle": "round,pad=0.24", "facecolor": "white", "edgecolor": OI["vermillion"], "alpha": 0.94},
+        arrowprops={"arrowstyle": "->", "color": OI["vermillion"], "lw": 1.3, "connectionstyle": "arc3,rad=-0.12"},
+    )
+
+    ax3.set_xlim(-0.56, 0.68)
+    ax3.set_ylim(-2.25, 3.35)
+    ax3.set_xlabel("DLG Calibration Offset ΔDLG (mm)")
+    ax3.set_ylabel("Ion-Chamber MU Drift (%)")
+    ax3.set_title("Ellipsoidal Delivery Robustness Certificate")
+    ax3.legend(loc="lower left", fontsize=6.9, framealpha=0.94)
+
+    fig.suptitle(
+        "Plan-Specific Inverse Tolerance Budgets & Fleet-Safe Linac Routing (Unifying AAPM TG-100 / TG-142 / TG-218)",
+        fontsize=11.6,
+        fontweight="bold",
+        y=0.96,
+    )
+    _save_fig(
+        fig,
+        "fig8_delivery_robustness_and_routing",
+        "Provenance: DELIVERY_ROBUSTNESS_CERTIFICATE on OPEN_PUBLIC_ANATOMY_OPENKBP (pt_1–pt_3) × 3 Live Linac Fingerprints | Non-Commercial Research Software — NOT A MEDICAL DEVICE",
     )
 
 
@@ -1000,7 +1187,8 @@ def main() -> None:
     make_fig5_tg142_fleet_triage()
     make_fig6_sobol_sensitivity(summary)
     make_fig7_epid_stiction_kalman_rul()
-    print(f"Generated all 7 publication-grade 300-DPI PNG + PDF figures in {FIGURES_DIR}")
+    make_fig8_delivery_robustness_and_routing()
+    print(f"Generated all 8 publication-grade 300-DPI PNG + PDF figures in {FIGURES_DIR}")
 
 
 if __name__ == "__main__":

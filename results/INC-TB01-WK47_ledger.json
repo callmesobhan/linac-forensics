@@ -237,9 +237,9 @@
         "sha256_inputs": {
           "config": "e4731013b91c364bdc8da8a2e8720883fb6cbc22eb5afefb61cf336470bfd8c7"
         },
-        "engine_version": "0.2.0",
+        "engine_version": "0.3.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:47:58.285965+00:00",
+        "created_utc": "2026-11-24T21:41:34.898169+00:00",
         "notes": "30-day synthetic TG-142/MPC QA series (degrading_mlc_dlg)."
       }
     },
@@ -478,9 +478,9 @@
         "sha256_inputs": {
           "config": "43595a891e50886219d0310c05ee78358935d824663e0bd0b6002c34188c3789"
         },
-        "engine_version": "0.2.0",
+        "engine_version": "0.3.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:47:58.286046+00:00",
+        "created_utc": "2026-11-24T21:41:34.898248+00:00",
         "notes": "30-day synthetic TG-142/MPC QA series (nominal_stable)."
       }
     },
@@ -719,9 +719,9 @@
         "sha256_inputs": {
           "config": "fccd448367e23125b16147a48e091209f2b6bedf4668c48a4f4ad4cb632cfa3d"
         },
-        "engine_version": "0.2.0",
+        "engine_version": "0.3.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:47:58.286112+00:00",
+        "created_utc": "2026-11-24T21:41:34.898314+00:00",
         "notes": "30-day synthetic TG-142/MPC QA series (mild_output_drift)."
       }
     }
@@ -796,9 +796,9 @@
         "config": "e4731013b91c364bdc8da8a2e8720883fb6cbc22eb5afefb61cf336470bfd8c7",
         "rul_config": "375f0f937a6f771f1fe7a7a3b8a3675ac0842debbd2e939ad832f83b6d5fd358"
       },
-      "engine_version": "0.2.0",
+      "engine_version": "0.3.0",
       "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-      "created_utc": "2026-11-23T22:47:59.528167+00:00",
+      "created_utc": "2026-11-24T21:41:36.126638+00:00",
       "notes": "Local-linear-trend Kalman RUL forecast from Day 20 (+10d)."
     }
   },
@@ -1037,9 +1037,9 @@
         "fault_config": "e6744abf2b896b71122be309bf1943e89e6c82b97822d6c300fdc7cf57461147",
         "diagnosis_summary": "c648d036a69a6d49b4d86f165ad9f7e93c43646ff42b24eadb899852922d771e"
       },
-      "engine_version": "0.2.0",
+      "engine_version": "0.3.0",
       "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-      "created_utc": "2026-11-23T22:47:58.708027+00:00",
+      "created_utc": "2026-11-24T21:41:35.314152+00:00",
       "notes": "BIC causal attribution across 9719 standardized observations (viscous + stiction + DLG + sag + MU)."
     }
   },
@@ -1199,9 +1199,9 @@
       "openkbp/PTV56.csv": "1c76ce104f9931df1dee422c6fe2270abbf865082bacbccbda96a92883de2873",
       "critic_gate": "2f17f4b9ee2213de8f480f534fc472e1e028e14f647f6081a9729a3660a857b9"
     },
-    "engine_version": "0.2.0",
+    "engine_version": "0.3.0",
     "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-    "created_utc": "2026-11-23T22:47:59.527339+00:00",
+    "created_utc": "2026-11-24T21:41:36.125737+00:00",
     "notes": "Autonomous Fleet Physicist triage across 6 patients & 3 linacs."
   }
 }

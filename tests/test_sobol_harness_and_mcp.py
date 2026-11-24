@@ -107,6 +107,8 @@ def test_mcp_protocol_handshake_and_tools_list() -> None:
         "linac_run_sobol_sensitivity",
         "linac_analyze_epid_three_way",
         "linac_forecast_tg142_rul",
+        "linac_certify_plan_robustness",
+        "linac_simulate_leaf_outage",
     }
 
 

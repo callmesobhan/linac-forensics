@@ -60,11 +60,12 @@ class ProvenanceRecord(BaseModel):
         "SYNTHETIC_TG142_FLEET_DRIFT",
         "VENDOR_TRAJECTORY_LOG",
         "EPID_THREE_WAY_FORENSICS",
+        "DELIVERY_ROBUSTNESS_CERTIFICATE",
         "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
     ]
     dataset_source: str = Field(..., min_length=1)
     sha256_inputs: dict[str, str] = Field(default_factory=dict)
-    engine_version: str = Field(default="0.2.0")
+    engine_version: str = Field(default="0.3.0")
     research_notice: str = Field(default="Research Software — NOT A MEDICAL DEVICE")
     created_utc: str = Field(
         default_factory=lambda: datetime.now(UTC).isoformat()
@@ -384,4 +385,119 @@ class MultiFractionAccumulationReport(BaseModel):
     critical_oar_name: str
     recommended_remaining_fx_mu_scale: float
     adaptive_replan_triggered: bool
+    provenance: ProvenanceRecord
+
+
+class LinacMachineFingerprint(BaseModel):
+    """Live measured electro-mechanical fingerprint & predictive uncertainty of a linac."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    machine_id: str
+    tg142_status: Literal["PASSING_TG142", "EARLY_WARNING", "ACTION_BREACH"]
+    parameter_names: list[str]
+    mean_vector: dict[str, float]
+    std_vector: dict[str, float]
+    failing_bank: Literal["A", "B"] | None = None
+    failing_leaf_index: int | None = None
+    notes: str = Field(default="")
+    provenance: ProvenanceRecord
+
+
+class PlanToleranceBudget(BaseModel):
+    """Plan-specific inverse mechanical tolerance budget derived from 3D anatomy Jacobian."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    patient_id: str
+    plan_id: str
+    treatment_site: str
+    anatomy_source: str
+    modulation_complexity_index: float = Field(..., gt=0.0)
+    ptv_d95_limit_pct: float = Field(default=2.0, gt=0.0)
+    oar_d003cc_limit_gy: float = Field(default=1.5, gt=0.0)
+    critical_oar_name: str
+    ptv_jacobian: dict[str, float]
+    oar_jacobian: dict[str, float]
+    max_safe_tolerances: dict[str, float]
+    static_tg142_limits: dict[str, float]
+    tighter_than_tg142: list[str]
+    provenance: ProvenanceRecord
+
+
+class DeliveryRobustnessCertificate(BaseModel):
+    """Ellipsoidal worst-case adversarial delivery safety certificate for one (plan, linac) pair."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    patient_id: str
+    plan_id: str
+    machine_id: str
+    machine_tg142_status: Literal["PASSING_TG142", "EARLY_WARNING", "ACTION_BREACH"]
+    confidence_level: float = Field(default=0.95, gt=0.5, lt=1.0)
+    nominal_ptv_delta_d95_pct: float
+    worst_case_ptv_delta_d95_pct: float
+    nominal_oar_delta_d003cc_gy: float
+    worst_case_oar_delta_d003cc_gy: float
+    critical_oar_name: str
+    adversarial_fault_vector: dict[str, float]
+    mahalanobis_distance_to_failure: float = Field(..., ge=0.0)
+    safety_margin: float = Field(..., ge=0.0)
+    verdict: Literal["CERTIFIED_SAFE", "MARGINAL_TIGHT_MONITOR", "UNSAFE_REROUTE_REQUIRED"]
+    tg142_stealth_risk: bool
+    recommendation: str
+    provenance: ProvenanceRecord
+
+
+class FleetRoutingRecommendation(BaseModel):
+    """Optimal safe linac assignment and safety-margin gain for a single patient."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    patient_id: str
+    plan_id: str
+    treatment_site: str
+    current_machine_id: str
+    current_safety_margin: float
+    recommended_machine_id: str
+    recommended_safety_margin: float
+    transfer_required: bool
+    tg142_stealth_risk: bool
+    margin_gain_ratio: float
+    rationale: str
+
+
+class FleetSafeRoutingMatrix(BaseModel):
+    """Fleet-wide linac-to-patient compatibility matrix and safe transfer schedule."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    machine_ids: list[str]
+    patient_ids: list[str]
+    fingerprints: list[LinacMachineFingerprint]
+    budgets: list[PlanToleranceBudget]
+    certificates: list[DeliveryRobustnessCertificate]
+    safety_margin_matrix: dict[str, dict[str, float]]
+    routing_recommendations: list[FleetRoutingRecommendation]
+    n_stealth_tg142_risks: int = Field(..., ge=0)
+    provenance: ProvenanceRecord
+
+
+class LeafOutageCounterfactualReport(BaseModel):
+    """Counterfactual 3D perturbative ΔDVH impact if a failing MLC leaf is locked out."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    patient_id: str
+    plan_id: str
+    anatomy_source: str
+    outage_bank: Literal["A", "B"]
+    outage_leaf_index: int = Field(..., ge=1)
+    compensation_mode: Literal["PARKED_CLOSED", "ADJACENT_LEAF_AVERAGE"]
+    ptv_delta_d95_pct: float
+    critical_oar_delta_d003cc_gy: float
+    critical_oar_name: str
+    gamma_3d_2pct_1mm_pass_pct: float = Field(..., ge=0.0, le=100.0)
+    verdict: Literal["SAFE_TO_TREAT_WITH_OUTAGE", "HOLD_UNTIL_LEAF_REPAIRED"]
+    rationale: str
     provenance: ProvenanceRecord

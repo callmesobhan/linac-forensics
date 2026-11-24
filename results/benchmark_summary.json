@@ -4,12 +4,12 @@
   "binary_roundtrip": {
     "version": "5.0",
     "file_bytes": 375988,
-    "write_ms": 2.66,
-    "parse_ms": 3.66,
+    "write_ms": 2.67,
+    "parse_ms": 3.75,
     "max_leaf_roundtrip_error_mm": 5.719512607527122e-06
   },
   "zero_error_invariant": {
-    "replay_ms": 51.94,
+    "replay_ms": 51.05,
     "max_abs_delta_fluence": 0.0,
     "max_abs_delta_dose_gy": 0.0,
     "gamma_2d_3pct_2mm": 100.0,
@@ -912,9 +912,9 @@
           "sha256_inputs": {
             "sobol_config": "eb7d2246446e6f1c7771d93f45946d5967c2a322aade0db3835c6563116ed52b"
           },
-          "engine_version": "0.2.0",
+          "engine_version": "0.3.0",
           "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-          "created_utc": "2026-11-23T22:48:00.963546+00:00",
+          "created_utc": "2026-11-24T21:41:37.564136+00:00",
           "notes": "Exact Saltelli-Jansen QMC Sobol' sensitivity (3072 evaluations)."
         }
       },
@@ -1007,9 +1007,9 @@
           "sha256_inputs": {
             "sobol_config": "c2db86512a23dc54ed770613468288a5a5267f5c05e492574b142b18aaf450d5"
           },
-          "engine_version": "0.2.0",
+          "engine_version": "0.3.0",
           "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-          "created_utc": "2026-11-23T22:48:00.966489+00:00",
+          "created_utc": "2026-11-24T21:41:37.566894+00:00",
           "notes": "Exact Saltelli-Jansen QMC Sobol' sensitivity (3072 evaluations)."
         }
       }
@@ -1042,9 +1042,9 @@
           "fault_config": "20f38bc24c64918031d805805c0761e095abfc7237fd52b44b5143df3c852474",
           "epid_summary": "4527b62f88d488593c5aaa4345e66e1bada49d05598cf56160775f0ae7fa77e1"
         },
-        "engine_version": "0.2.0",
+        "engine_version": "0.3.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:48:01.027604+00:00",
+        "created_utc": "2026-11-24T21:41:37.628916+00:00",
         "notes": "Three-way TPS vs Log vs EPID verification (classification=ENCODER_BLIND_SILENT_FAULT)."
       }
     },
@@ -1124,9 +1124,9 @@
           "config": "e4731013b91c364bdc8da8a2e8720883fb6cbc22eb5afefb61cf336470bfd8c7",
           "rul_config": "375f0f937a6f771f1fe7a7a3b8a3675ac0842debbd2e939ad832f83b6d5fd358"
         },
-        "engine_version": "0.2.0",
+        "engine_version": "0.3.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:48:01.038024+00:00",
+        "created_utc": "2026-11-24T21:41:37.639527+00:00",
         "notes": "Local-linear-trend Kalman RUL forecast from Day 20 (+10d)."
       }
     },
@@ -1163,10 +1163,211 @@
           "openkbp/PTV56.csv": "ee81d8e4b676b5c1dd1d78f1ac1bfa2623c679b38aa3786270bef968a7e5289a",
           "fraction_ids": "995bc71f731980ad48cd344ef1c835a35c2fb73e3d8b2624c08891c574d8123b"
         },
-        "engine_version": "0.2.0",
+        "engine_version": "0.3.0",
         "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
-        "created_utc": "2026-11-23T22:48:02.090396+00:00",
+        "created_utc": "2026-11-24T21:41:38.740551+00:00",
         "notes": "Cumulative 3D dose accumulation over 5/35 fractions."
+      }
+    }
+  },
+  "v03_robustness_certificates": {
+    "n_stealth_tg142_risks": 4,
+    "safety_margin_matrix": {
+      "PT-HN-001": {
+        "TrueBeam-01": 0.344,
+        "TrueBeam-02": 1.606,
+        "TrueBeam-03": 0.688
+      },
+      "PT-SBRT-002": {
+        "TrueBeam-01": 0.34,
+        "TrueBeam-02": 1.674,
+        "TrueBeam-03": 0.641
+      },
+      "PT-HN-003": {
+        "TrueBeam-01": 0.588,
+        "TrueBeam-02": 2.572,
+        "TrueBeam-03": 1.078
+      },
+      "PT-LG-004": {
+        "TrueBeam-01": 0.649,
+        "TrueBeam-02": 2.888,
+        "TrueBeam-03": 0.983
+      },
+      "PT-PR-005": {
+        "TrueBeam-01": 1.468,
+        "TrueBeam-02": 6.342,
+        "TrueBeam-03": 1.51
+      },
+      "PT-BR-006": {
+        "TrueBeam-01": 1.335,
+        "TrueBeam-02": 4.887,
+        "TrueBeam-03": 1.199
+      }
+    },
+    "routing_recommendations": [
+      {
+        "patient_id": "PT-HN-001",
+        "plan_id": "VMAT_HN_SIB_70Gy",
+        "treatment_site": "H&N SIB 70 Gy (High MCI)",
+        "current_machine_id": "TrueBeam-01",
+        "current_safety_margin": 0.344,
+        "recommended_machine_id": "TrueBeam-02",
+        "recommended_safety_margin": 1.606,
+        "transfer_required": true,
+        "tg142_stealth_risk": true,
+        "margin_gain_ratio": 4.67,
+        "rationale": "TRANSFER TrueBeam-01 \u2192 TrueBeam-02: eliminates TG-142 stealth risk (margin 0.34x \u2192 1.61x)."
+      },
+      {
+        "patient_id": "PT-SBRT-002",
+        "plan_id": "VMAT_Spine_SBRT",
+        "treatment_site": "Spine SBRT (Ultra-High MCI)",
+        "current_machine_id": "TrueBeam-01",
+        "current_safety_margin": 0.34,
+        "recommended_machine_id": "TrueBeam-02",
+        "recommended_safety_margin": 1.674,
+        "transfer_required": true,
+        "tg142_stealth_risk": true,
+        "margin_gain_ratio": 4.92,
+        "rationale": "TRANSFER TrueBeam-01 \u2192 TrueBeam-02: eliminates TG-142 stealth risk (margin 0.34x \u2192 1.67x)."
+      },
+      {
+        "patient_id": "PT-HN-003",
+        "plan_id": "VMAT_NPC_ReIrrad",
+        "treatment_site": "NPC Re-Irrad (High MCI)",
+        "current_machine_id": "TrueBeam-01",
+        "current_safety_margin": 0.588,
+        "recommended_machine_id": "TrueBeam-02",
+        "recommended_safety_margin": 2.572,
+        "transfer_required": true,
+        "tg142_stealth_risk": true,
+        "margin_gain_ratio": 4.37,
+        "rationale": "TRANSFER TrueBeam-01 \u2192 TrueBeam-02: eliminates TG-142 stealth risk (margin 0.59x \u2192 2.57x)."
+      },
+      {
+        "patient_id": "PT-LG-004",
+        "plan_id": "VMAT_Lung_60Gy",
+        "treatment_site": "NSCLC Stage III (Mod MCI)",
+        "current_machine_id": "TrueBeam-01",
+        "current_safety_margin": 0.649,
+        "recommended_machine_id": "TrueBeam-02",
+        "recommended_safety_margin": 2.888,
+        "transfer_required": true,
+        "tg142_stealth_risk": true,
+        "margin_gain_ratio": 4.45,
+        "rationale": "TRANSFER TrueBeam-01 \u2192 TrueBeam-02: eliminates TG-142 stealth risk (margin 0.65x \u2192 2.89x)."
+      },
+      {
+        "patient_id": "PT-PR-005",
+        "plan_id": "VMAT_Prostate_78Gy",
+        "treatment_site": "Prostate VMAT (Low MCI)",
+        "current_machine_id": "TrueBeam-01",
+        "current_safety_margin": 1.468,
+        "recommended_machine_id": "TrueBeam-01",
+        "recommended_safety_margin": 1.468,
+        "transfer_required": false,
+        "tg142_stealth_risk": false,
+        "margin_gain_ratio": 1.0,
+        "rationale": "KEEP ON TrueBeam-01: certified safe (1.47x margin); preserves high-precision linac capacity for complex H&N/SBRT cases."
+      },
+      {
+        "patient_id": "PT-BR-006",
+        "plan_id": "VMAT_Breast_40Gy",
+        "treatment_site": "Whole Breast (Open Field)",
+        "current_machine_id": "TrueBeam-01",
+        "current_safety_margin": 1.335,
+        "recommended_machine_id": "TrueBeam-01",
+        "recommended_safety_margin": 1.335,
+        "transfer_required": false,
+        "tg142_stealth_risk": false,
+        "margin_gain_ratio": 1.0,
+        "rationale": "KEEP ON TrueBeam-01: certified safe (1.33x margin); preserves high-precision linac capacity for complex H&N/SBRT cases."
+      }
+    ],
+    "budgets_dlg_max_safe_mm": {
+      "PT-HN-001": 0.2055,
+      "PT-SBRT-002": 0.1713,
+      "PT-HN-003": 0.4173,
+      "PT-LG-004": 0.4633,
+      "PT-PR-005": 0.9757,
+      "PT-BR-006": 2.0194
+    },
+    "leaf_outage_parked_closed": {
+      "patient_id": "pt_1",
+      "plan_id": "VMAT_HN_SIB_70Gy",
+      "anatomy_source": "OpenKBP/pt_1 (CC BY 4.0, Babier et al. 2021)",
+      "outage_bank": "B",
+      "outage_leaf_index": 34,
+      "compensation_mode": "PARKED_CLOSED",
+      "ptv_delta_d95_pct": -56.4777,
+      "critical_oar_delta_d003cc_gy": 0.0,
+      "critical_oar_name": "SpinalCord",
+      "gamma_3d_2pct_1mm_pass_pct": 93.685,
+      "verdict": "HOLD_UNTIL_LEAF_REPAIRED",
+      "rationale": "Leaf B#34 (PARKED_CLOSED) induces PTV \u0394D95=-56.48%, SpinalCord \u0394D0.03cc=+0.00 Gy, 3D \u03b3(2%/1mm)=93.7% -> HOLD_UNTIL_LEAF_REPAIRED.",
+      "provenance": {
+        "record_id": "dose_replay:OUTAGE_B34_PARKED_CLOSED:pt_1",
+        "provenance_tag": "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
+        "dataset_source": "OpenKBP/pt_1 (CC BY 4.0, Babier et al. 2021) + linac-forensics Synthetic VMAT Trajectory Fault-Injection Suite",
+        "sha256_inputs": {
+          "openkbp/ct.csv": "ed31b888e0fd1751ed8ec20c04c8f1575ff35811eb6497e1f0bc3a8b7ea8e68d",
+          "openkbp/dose.csv": "e850b853c7d6285992818cd0098a04bc4c22e81d582cb637452cabbf5c733f33",
+          "openkbp/possible_dose_mask.csv": "f6412f61bd0efbd067be6d294eab61675a0d4942f5aee282cd6d07035dce0e70",
+          "openkbp/voxel_dimensions.csv": "ffa866c090e5b655e8067820b1dcc7ae16e89d0cc593ff8e8f3dda7f5290a246",
+          "openkbp/Brainstem.csv": "acdf8de278d98967842d3e4540b2c821e711568be6a1c0fbcd7437a3dc4a1c45",
+          "openkbp/SpinalCord.csv": "fdaf5e9680d8195de73bccfb6d0712ca155c91ee698535cff29551defe072acd",
+          "openkbp/RightParotid.csv": "8eb279734796947e67e865fdfabdb20115b8190ad5a7e503b41f31c9c68b0bc9",
+          "openkbp/LeftParotid.csv": "f1f54e7d07b35d08715407580efa4ca136ed3deb108e184117bb42f7691f0755",
+          "openkbp/Mandible.csv": "632cbdc97d25ecad48b169eee141838498e75b5f4731050b3b0a447b0b3287e2",
+          "openkbp/PTV70.csv": "c7e5df95d5696ade43b54e67b80f8eafa0b0ee5d4bc1609f3b0d61e40ac2b97c",
+          "openkbp/PTV63.csv": "fabd944952a0d75c05c8c4d49da214381c018216f5134bf171b508c3f314f397",
+          "openkbp/PTV56.csv": "1c76ce104f9931df1dee422c6fe2270abbf865082bacbccbda96a92883de2873",
+          "fault_config": "20f38bc24c64918031d805805c0761e095abfc7237fd52b44b5143df3c852474",
+          "replay_config": "779fcb989e91cfc4240426beac7f3dd9c9916329218a4de6df5c7be2903c7d73"
+        },
+        "engine_version": "0.3.0",
+        "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+        "created_utc": "2026-11-24T21:41:44.620493+00:00",
+        "notes": "Perturbative 2D->3D dose replay (8 sectors, het=True); blindspot=False."
+      }
+    },
+    "leaf_outage_adjacent_avg": {
+      "patient_id": "pt_1",
+      "plan_id": "VMAT_HN_SIB_70Gy",
+      "anatomy_source": "OpenKBP/pt_1 (CC BY 4.0, Babier et al. 2021)",
+      "outage_bank": "B",
+      "outage_leaf_index": 34,
+      "compensation_mode": "ADJACENT_LEAF_AVERAGE",
+      "ptv_delta_d95_pct": 0.0,
+      "critical_oar_delta_d003cc_gy": 0.0131,
+      "critical_oar_name": "Mandible",
+      "gamma_3d_2pct_1mm_pass_pct": 99.998,
+      "verdict": "SAFE_TO_TREAT_WITH_OUTAGE",
+      "rationale": "Leaf B#34 (ADJACENT_LEAF_AVERAGE) induces PTV \u0394D95=+0.00%, Mandible \u0394D0.03cc=+0.01 Gy, 3D \u03b3(2%/1mm)=100.0% -> SAFE_TO_TREAT_WITH_OUTAGE.",
+      "provenance": {
+        "record_id": "dose_replay:OUTAGE_B34_ADJACENT_LEAF_AVERAGE:pt_1",
+        "provenance_tag": "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
+        "dataset_source": "OpenKBP/pt_1 (CC BY 4.0, Babier et al. 2021) + linac-forensics Synthetic VMAT Trajectory Fault-Injection Suite",
+        "sha256_inputs": {
+          "openkbp/ct.csv": "ed31b888e0fd1751ed8ec20c04c8f1575ff35811eb6497e1f0bc3a8b7ea8e68d",
+          "openkbp/dose.csv": "e850b853c7d6285992818cd0098a04bc4c22e81d582cb637452cabbf5c733f33",
+          "openkbp/possible_dose_mask.csv": "f6412f61bd0efbd067be6d294eab61675a0d4942f5aee282cd6d07035dce0e70",
+          "openkbp/voxel_dimensions.csv": "ffa866c090e5b655e8067820b1dcc7ae16e89d0cc593ff8e8f3dda7f5290a246",
+          "openkbp/Brainstem.csv": "acdf8de278d98967842d3e4540b2c821e711568be6a1c0fbcd7437a3dc4a1c45",
+          "openkbp/SpinalCord.csv": "fdaf5e9680d8195de73bccfb6d0712ca155c91ee698535cff29551defe072acd",
+          "openkbp/RightParotid.csv": "8eb279734796947e67e865fdfabdb20115b8190ad5a7e503b41f31c9c68b0bc9",
+          "openkbp/LeftParotid.csv": "f1f54e7d07b35d08715407580efa4ca136ed3deb108e184117bb42f7691f0755",
+          "openkbp/Mandible.csv": "632cbdc97d25ecad48b169eee141838498e75b5f4731050b3b0a447b0b3287e2",
+          "openkbp/PTV70.csv": "c7e5df95d5696ade43b54e67b80f8eafa0b0ee5d4bc1609f3b0d61e40ac2b97c",
+          "openkbp/PTV63.csv": "fabd944952a0d75c05c8c4d49da214381c018216f5134bf171b508c3f314f397",
+          "openkbp/PTV56.csv": "1c76ce104f9931df1dee422c6fe2270abbf865082bacbccbda96a92883de2873",
+          "fault_config": "20f38bc24c64918031d805805c0761e095abfc7237fd52b44b5143df3c852474",
+          "replay_config": "f283dfd4980340b7228f372633b0174ccdbb2733122d149857a51e198f56f5bc"
+        },
+        "engine_version": "0.3.0",
+        "research_notice": "Research Software \u2014 NOT A MEDICAL DEVICE",
+        "created_utc": "2026-11-24T21:41:44.785008+00:00",
+        "notes": "Perturbative 2D->3D dose replay (8 sectors, het=True); blindspot=False."
       }
     }
   }

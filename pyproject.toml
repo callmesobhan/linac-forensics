@@ -4,30 +4,32 @@ build-backend = "hatchling.build"
 
 [project]
 name = "linac-forensics"
-version = "0.2.0"
-description = "Closed-Loop Linac Telemetry, EPID & Perturbative 3D Delivery-Forensics Engine with Frontier Agent Harness & MCP Server (Research Software — NOT A MEDICAL DEVICE)"
+version = "0.3.0"
+description = "Closed-Loop Linac Telemetry, Three-Way EPID, Perturbative 3D Delivery-Forensics & Inverse Tolerance Robustness Engine (Non-Commercial Research Software — NOT A MEDICAL DEVICE)"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
 authors = [
-  { name = "Sobhan", email = "research@linac-forensics.org" }
+  { name = "Sobhan Shahbazi", email = "research@linac-forensics.org" }
 ]
 keywords = [
   "medical-physics",
   "radiotherapy",
   "linac",
   "trajectory-log",
+  "AAPM-TG-100",
   "AAPM-TG-142",
   "AAPM-TG-218",
   "DVH",
   "MLC",
+  "delivery-robustness",
   "MCP",
   "causal-inference"
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: Apache Software License",
+  "License :: Other/Proprietary License",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Medical Science Apps.",

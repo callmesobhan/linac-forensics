@@ -1,9 +1,9 @@
-"""linac-forensics: Closed-Loop Linac Telemetry, EPID & Perturbative 3D Delivery-Forensics Engine.
+"""linac-forensics: Closed-Loop Linac Telemetry, EPID, 3D Forensics & Inverse Robustness Engine.
 
-Research Software — NOT A MEDICAL DEVICE.
+Non-Commercial Research Software — NOT A MEDICAL DEVICE.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 from linac_forensics.anatomy import (
     PatientAnatomyVolume,
@@ -23,12 +23,18 @@ from linac_forensics.ir import (
     AbstentionError,
     CausalFaultDiagnosis,
     ControlPointPlan,
+    DeliveryRobustnessCertificate,
     EPIDThreeWayForensicsReport,
+    FleetRoutingRecommendation,
+    FleetSafeRoutingMatrix,
     KalmanRULForecast,
+    LeafOutageCounterfactualReport,
+    LinacMachineFingerprint,
     MLCFaultSignature,
     MultiFractionAccumulationReport,
     PatientTriageRecord,
     PerturbativeDoseImpact,
+    PlanToleranceBudget,
     ProvenanceRecord,
     SobolSensitivityReport,
     TG142TrendSeries,
@@ -48,6 +54,14 @@ from linac_forensics.predictive_rul import (
     accumulate_multifraction_course,
     forecast_tg142_kalman_rul,
 )
+from linac_forensics.robustness_certificate import (
+    build_fleet_fingerprints,
+    certify_delivery_robustness,
+    compute_fleet_routing_matrix,
+    compute_plan_tolerance_budget,
+    extract_linac_fingerprint,
+    simulate_counterfactual_leaf_outage,
+)
 from linac_forensics.sobol_sensitivity import run_delivery_sobol_sensitivity
 
 __all__ = [
@@ -56,24 +70,35 @@ __all__ = [
     "AbstentionError",
     "CausalFaultDiagnosis",
     "ControlPointPlan",
+    "DeliveryRobustnessCertificate",
     "EPIDThreeWayForensicsReport",
+    "FleetRoutingRecommendation",
+    "FleetSafeRoutingMatrix",
     "KalmanRULForecast",
+    "LeafOutageCounterfactualReport",
+    "LinacMachineFingerprint",
     "MLCFaultSignature",
     "MultiFractionAccumulationReport",
     "PatientAnatomyVolume",
     "PatientTriageRecord",
     "PerturbativeDoseImpact",
+    "PlanToleranceBudget",
     "ProvenanceRecord",
     "SobolSensitivityReport",
     "TG142TrendSeries",
     "TrajectoryLogTensor",
     "accumulate_multifraction_course",
     "analyze_three_way_epid_forensics",
+    "build_fleet_fingerprints",
     "build_synthetic_phantom_anatomy",
+    "certify_delivery_robustness",
+    "compute_fleet_routing_matrix",
     "compute_perturbative_dose_replay",
+    "compute_plan_tolerance_budget",
     "ct_hu_to_relative_electron_density",
     "deconvolve_epid_to_fluence",
     "diagnose_causal_faults",
+    "extract_linac_fingerprint",
     "forecast_tg142_kalman_rul",
     "generate_synthetic_vmat_log",
     "load_openkbp_cohort",
@@ -83,6 +108,7 @@ __all__ = [
     "parse_varian_dynalog_dlg",
     "parse_varian_trajectory_bin",
     "run_delivery_sobol_sensitivity",
+    "simulate_counterfactual_leaf_outage",
     "simulate_measured_epid_image",
     "write_varian_dynalog_dlg",
     "write_varian_trajectory_bin",

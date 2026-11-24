@@ -50,6 +50,7 @@ def build_provenance(
         "SYNTHETIC_TG142_FLEET_DRIFT",
         "VENDOR_TRAJECTORY_LOG",
         "EPID_THREE_WAY_FORENSICS",
+        "DELIVERY_ROBUSTNESS_CERTIFICATE",
         "COMPOSITE_OPENKBP_PLUS_SYNTHETIC_LOG",
     ],
     dataset_source: str,

@@ -1,12 +1,14 @@
 cff-version: 1.2.0
-message: "If you use linac-forensics in your research, please cite it using the metadata below."
-title: "linac-forensics: Closed-Loop Linac Telemetry, EPID & Perturbative 3D Delivery-Forensics Engine with Frontier Agent Harness & MCP Server"
-version: 0.2.0
-date-released: "2026-11-23"
-license: Apache-2.0
+message: "Non-Commercial Research & Personal Use Only. Any academic or research use MUST cite linac-forensics using the metadata below."
+title: "linac-forensics: Closed-Loop Linac Telemetry, Three-Way EPID, Perturbative 3D Delivery-Forensics & Inverse Tolerance Robustness Engine"
+version: 0.3.0
+date-released: "2026-11-24"
+license-url: "https://github.com/callmesobhan/linac-forensics/blob/main/LICENSE"
+repository-code: "https://github.com/callmesobhan/linac-forensics"
 type: software
 authors:
-  - family-names: "linac-forensics Contributors"
+  - family-names: "Shahbazi"
+    given-names: "Sobhan"
 keywords:
   - medical physics
   - radiotherapy quality assurance

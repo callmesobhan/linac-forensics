@@ -1,154 +1,59 @@
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
+================================================================================
+linac-forensics Non-Commercial Research & Personal Use License (v1.0)
+================================================================================
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+Copyright (c) 2026 Sobhan Shahbazi & linac-forensics Contributors.
+All rights reserved.
 
-   1. Definitions.
+1. GRANT OF PERMITTED NON-COMMERCIAL LICENSE
+   Subject to the terms and conditions of this License, permission is hereby
+   granted, free of charge, to any individual, university, hospital research
+   group, or non-profit academic institution to use, copy, modify, and
+   distribute this software and its associated documentation files (the
+   "Software") SOLELY for:
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+   (a) Non-commercial academic, scientific, or educational research; and
+   (b) Personal, non-commercial study, experimentation, or evaluation.
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+2. MANDATORY CITATION REQUIREMENT (RESEARCH & PUBLICATIONS)
+   Any publication, preprint, presentation, thesis, benchmark, derivative
+   codebase, or public academic work that uses, adapts, or builds upon the
+   Software MUST prominently cite the Software using the citation metadata in
+   `CITATION.cff` and retain this License and copyright notice in all copies
+   or substantial portions of the Software.
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+3. STRICT PROHIBITION ON COMMERCIAL USE
+   Commercial use of the Software, in whole or in part, is STRICTLY PROHIBITED
+   without a separate, prior written commercial license agreement signed by the
+   copyright holder. Prohibited commercial uses include, without limitation:
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+   (a) Selling, licensing, sublicensing, renting, or bundling the Software or
+       any derivative work as part of a commercial product or paid service;
+   (b) Using the Software inside a for-profit organization for commercial
+       product development, commercial clinical QA software, paid consulting,
+       SaaS/API hosting, or revenue-generating operations;
+   (c) Incorporating code, algorithms, or generated models from the Software
+       into proprietary or commercially distributed medical devices or
+       clinical software suites.
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+   For commercial licensing inquiries, contact the copyright holder via the
+   official GitHub repository: https://github.com/callmesobhan/linac-forensics
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+4. THIRD-PARTY DATA & DEPENDENCIES
+   Third-party datasets staged or referenced by this repository (including the
+   OpenKBP dataset in `data/openkbp/`, licensed under CC BY 4.0 / MIT by its
+   original authors) remain governed by their own verbatim upstream licenses
+   and attribution files included in `data/openkbp/LICENSE` and
+   `data/openkbp/ATTRIBUTION.md`.
 
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      independent of the Work, or that merely link (or bind by name) to the
-      interfaces of the Work and Derivative Works thereof.
-
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to the Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by the Licensor or its
-      references for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the Licensor as "Not a Contribution."
-
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      shall be subsequently incorporated within the Work.
-
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims that are
-      licensable by such Contributor that are necessarily infringed by
-      their Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution constitutes direct or indirect patent infringement,
-      then any patent licenses granted to You under this License for that
-      Work shall terminate as of the date such litigation is filed.
-
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
-
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
-
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright notices, patent notices,
-          trademarks, and attribution notices from the Source form of
-          the Work, excluding those notices that do not pertain to any
-          part of this License; and
-
-      (d) If the Work includes a "NOTICE" file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of this License, in at least one of the
-          following places: within a NOTICE file distributed as part of
-          the Work; within the Source form or documentation, if provided
-          along with the Work; or, within a display generated by the
-          Work, if and wherever such third-party notices generally appear.
-
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-
-   6. Trademarks. This License does not grant permission to use the
-      terms, trade names, trademarks, service marks, or product names of the
-      Licensor, except as required for reasonable and customary use in
-      describing the origin of the Work and reproducing the content of the
-      NOTICE file.
-
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of the Work and assume any risks associated with
-      Your exercise of permissions under this License.
-
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor has
-      been advised of the possibility of such damages.
-
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, or additional
-      liability obligations and/or rights consistent with this License.
+5. NO WARRANTY & LIMITATION OF LIABILITY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, AND NONINFRINGEMENT. IN NO EVENT
+   SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+   ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
 
 ================================================================================
 RESEARCH SOFTWARE NOTICE — NOT A MEDICAL DEVICE
@@ -166,6 +71,4 @@ All clinical radiation therapy machine QA, patient-specific IMRT/VMAT QA,
 and linear accelerator service actions MUST be performed using clinically
 commissioned, regulatorily cleared systems under the direct supervision of
 a Qualified Medical Physicist (QMP) in accordance with institutional protocols
-and applicable AAPM Task Group reports (e.g., TG-142, TG-218).
-
-Copyright 2026 linac-forensics Contributors
+and applicable AAPM Task Group reports (e.g., TG-100, TG-142, TG-218).

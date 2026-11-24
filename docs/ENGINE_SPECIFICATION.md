@@ -1,12 +1,12 @@
-# `linac-forensics` Physics Engine & Architecture Specification (v0.2.0)
+# `linac-forensics` Physics Engine & Architecture Specification (v0.3.0)
 
-> **Research Software — NOT A MEDICAL DEVICE.** `linac-forensics` is designed exclusively for medical physics research, algorithmic QA benchmarking, and closed-loop telemetry forensics education.
+> **Non-Commercial Research Software — NOT A MEDICAL DEVICE.** `linac-forensics` is licensed strictly for non-commercial academic/research use (with mandatory citation) and personal study.
 
 ---
 
 ## 1. System Architecture Overview
 
-`linac-forensics` couples five strictly typed scientific computing layers:
+`linac-forensics` couples six strictly typed scientific computing layers:
 
 1. **Multi-Format Telemetry & Binary Ingestion Layer (`ir.py`, `log_parser.py`, `provenance.py`)**:
    - Native binary encoder/decoder for **Varian TrueBeam Trajectory Logs (`.bin`, header v3.0 / v4.0 / v5.0)** with 1024-byte header, 560-byte subbeam tables, 20–50 Hz expected/actual `float32` snapshots (gantry, collimator, jaws X1/X2/Y1/Y2, cumulative MU, beam-hold state, 2 carriages, and 120 Bank A/B MLC leaves), IEC 61217 scaling, and v5.0 CRC32 verification.
@@ -37,7 +37,14 @@
    - **Local-Linear-Trend Kalman Filter (`forecast_tg142_kalman_rul`)**: estimates drift velocity, multi-step 95% credible envelopes, horizon breach probability, and probabilistic Remaining Useful Life (RUL) before TG-142 action limits.
    - **Multi-Fraction Cumulative 3D Dose Accumulation (`accumulate_multifraction_course`)**: separates systematic vs. random delivery deviations across multiple fractions and computes compensatory remaining-course adaptive MU scaling.
    - **Exact Saltelli–Jansen QMC Sobol' (`sobol_sensitivity.py`)**: global variance decomposition ($S_1$, $S_T$, 95% bootstrap CIs) calibrated on real OpenKBP anatomy.
-   - **JSON-RPC 2.0 Stdio MCP Server (`harness/mcp_server.py`)**: exposes **8 typed provenance-gated tools** plus live read-only **`resources/list` & `resources/read`** endpoints.
+   - **JSON-RPC 2.0 Stdio MCP Server (`harness/mcp_server.py`)**: exposes **10 typed provenance-gated tools** plus live read-only **`resources/list` & `resources/read`** endpoints.
+
+6. **Inverse Plan Tolerance Budgeting, Adversarial Delivery Robustness Certificates & Fleet-Safe Linac Routing (`robustness_certificate.py`)**:
+   - Unifies **AAPM TG-100** (risk-based QA), **AAPM TG-142** (machine tolerances), and **AAPM TG-218** (patient-specific QA) via closed-loop inverse physics:
+     - **Live Linac Fingerprinting**: extracts $(\hat{\theta}, \Sigma_{\text{linac}})$ across all 5 electro-mechanical channels with optional Kalman predictive drift covariance inflation.
+     - **Plan-Specific Inverse Mechanical Budget**: probes the heterogeneity-aware 3D perturbative Jacobian $(J_{\text{PTV}}, J_{\text{OAR}})$ on real OpenKBP anatomies to invert exact per-plan maximum safe tolerances $\theta^{\max}_j = \min(L_{\text{PTV}}/|J_{\text{PTV},j}|, L_{\text{OAR}}/|J_{\text{OAR},j}|)$, flagging axes tighter than static TG-142.
+     - **Bonferroni-Exact Ellipsoidal Adversarial Certification**: solves $\max_{\|\Sigma^{-1/2}(\theta-\hat{\theta})\| \le z_{1-\alpha/4}} |J^T \theta| = |J^T \hat{\theta}| + z_{1-\alpha/4}\sqrt{J^T \Sigma J}$ to certify safety margins, Mahalanobis distance to clinical failure, and **TG-142 Stealth Risks** (plans unsafe on linacs still passing static TG-142).
+     - **Fleet-Wide Linac-to-Patient Safe Routing & Counterfactual Leaf-Outage Replay**: recommends optimal safe linac transfers and evaluates parked-closed vs. adjacent-leaf-compensated leaf outages in 3D `ΔDVH`.
 
 ---
 
