@@ -97,7 +97,8 @@ def test_mcp_protocol_handshake_and_tools_list() -> None:
 
     listed = handle_jsonrpc_request({"jsonrpc": "2.0", "id": 3, "method": "tools/list"})
     assert listed is not None
-    names = {t["name"] for t in listed["result"]["tools"]}
+    tools = listed["result"]["tools"]
+    names = {t["name"] for t in tools}
     assert names == {
         "linac_parse_trajectory_log",
         "linac_compute_perturbative_dvh",
@@ -110,6 +111,14 @@ def test_mcp_protocol_handshake_and_tools_list() -> None:
         "linac_certify_plan_robustness",
         "linac_simulate_leaf_outage",
     }
+    for tool in tools:
+        assert isinstance(tool["description"], str) and len(tool["description"]) > 20
+        assert tool["annotations"] == {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        }
 
 
 def test_mcp_parse_tool_valid_and_abstention(tmp_path: Path) -> None:
@@ -224,6 +233,58 @@ def test_mcp_fleet_triage_sobol_and_error_handling() -> None:
     )
     assert sobol_resp is not None and sobol_resp["result"]["isError"] is False
     assert "PTV70_delta_D95_pct" in sobol_resp["result"]["structuredContent"]
+
+    epid_resp = handle_jsonrpc_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 34,
+            "method": "tools/call",
+            "params": {
+                "name": "linac_analyze_epid_three_way",
+                "arguments": {"silent_dlg_bias_mm": 0.45},
+            },
+        }
+    )
+    assert epid_resp is not None and epid_resp["result"]["isError"] is False
+
+    rul_resp = handle_jsonrpc_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 35,
+            "method": "tools/call",
+            "params": {
+                "name": "linac_forecast_tg142_rul",
+                "arguments": {"machine_id": "TrueBeam-01"},
+            },
+        }
+    )
+    assert rul_resp is not None and rul_resp["result"]["isError"] is False
+
+    rob_resp = handle_jsonrpc_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 36,
+            "method": "tools/call",
+            "params": {
+                "name": "linac_certify_plan_robustness",
+                "arguments": {"anatomy_dir": str(OPENKBP_PT1_DIR)},
+            },
+        }
+    )
+    assert rob_resp is not None and rob_resp["result"]["isError"] is False
+
+    outage_resp = handle_jsonrpc_request(
+        {
+            "jsonrpc": "2.0",
+            "id": 37,
+            "method": "tools/call",
+            "params": {
+                "name": "linac_simulate_leaf_outage",
+                "arguments": {"anatomy_dir": str(OPENKBP_PT1_DIR), "outage_leaf_index": 34},
+            },
+        }
+    )
+    assert outage_resp is not None and outage_resp["result"]["isError"] is False
 
     bad_tool = handle_jsonrpc_request(
         {

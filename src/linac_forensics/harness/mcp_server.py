@@ -2,7 +2,7 @@
 
 Research Software — NOT A MEDICAL DEVICE.
 
-Exposes 8 strictly typed, provenance-gated medical physics forensics tools and
+Exposes 10 strictly typed, provenance-gated medical physics forensics tools and
 live read-only forensic resources (`resources/list`, `resources/read`) over
 newline-delimited JSON-RPC 2.0 stdio transport:
   1. `linac_parse_trajectory_log`
@@ -13,6 +13,8 @@ newline-delimited JSON-RPC 2.0 stdio transport:
   6. `linac_run_sobol_sensitivity`
   7. `linac_analyze_epid_three_way`
   8. `linac_forecast_tg142_rul`
+  9. `linac_certify_plan_robustness`
+  10. `linac_simulate_leaf_outage`
 """
 
 from __future__ import annotations
@@ -64,10 +66,13 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 TOOL_SPECS: list[dict[str, Any]] = [
     {
         "name": "linac_parse_trajectory_log",
-        "description": (
-            "Parse and validate a Varian TrueBeam binary (.bin v3.0/v4.0/v5.0), JSON, or CSV "
-            "trajectory log, enforcing monotonicity, MU conservation, and IEC 61217 gates."
-        ),
+        "description": "Parse and validate a Varian TrueBeam binary (.bin v3.0/v4.0/v5.0), JSON, or CSV trajectory log, enforcing monotonicity, MU conservation, and IEC 61217 gates.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -79,10 +84,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_compute_perturbative_dvh",
-        "description": (
-            "Run heterogeneity-aware 2D fluence -> 3D perturbative dose replay on OpenKBP or phantom "
-            "anatomy and compute ΔD95, ΔD0.03cc, ΔgEUD, ΔTCP/NTCP, and 2D/3D Gamma."
-        ),
+        "description": "Run heterogeneity-aware 2D fluence -> 3D perturbative dose replay on OpenKBP or phantom anatomy and compute ΔD95, ΔD0.03cc, ΔgEUD, ΔTCP/NTCP, and 2D/3D Gamma.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -95,10 +103,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_diagnose_causal_fault",
-        "description": (
-            "Perform physics-informed matched-filter & Bayesian BIC causal attribution separating "
-            "MLC viscous drag, Coulomb stiction/backlash, DLG offset, gravity sag, and MU drift."
-        ),
+        "description": "Perform physics-informed matched-filter & Bayesian BIC causal attribution separating MLC viscous drag, Coulomb stiction/backlash, DLG offset, gravity sag, and MU drift.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -109,10 +120,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_compare_gamma_vs_dvh",
-        "description": (
-            "Sweep DLG/MLC fault magnitudes and quantify Nelms et al. (2011) 2D 3%/2mm gamma "
-            "blindspots vs true 3D patient ΔDVH failures."
-        ),
+        "description": "Sweep DLG/MLC fault magnitudes and quantify Nelms et al. (2011) 2D 3%/2mm gamma blindspots vs true 3D patient ΔDVH failures.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -124,10 +138,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_triage_patient_fleet",
-        "description": (
-            "Run the Autonomous Fleet Physicist & Incident-Triage Harness across a multi-patient "
-            "OpenKBP cohort and 30-day TG-142/MPC trend series with Kalman RUL & Critic-Verifier Gate."
-        ),
+        "description": "Run the Autonomous Fleet Physicist & Incident-Triage Harness across a multi-patient OpenKBP cohort and 30-day TG-142/MPC trend series with Kalman RUL & Critic-Verifier Gate.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -139,10 +156,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_run_sobol_sensitivity",
-        "description": (
-            "Compute exact Saltelli–Jansen QMC global Sobol' sensitivity indices (S_1, S_T, 95% CIs) "
-            "for PTV70 ΔD95 and SpinalCord ΔD0.03cc across electro-mechanical linac tolerances."
-        ),
+        "description": "Compute exact Saltelli–Jansen QMC global Sobol' sensitivity indices (S_1, S_T, 95% CIs) for PTV70 ΔD95 and SpinalCord ΔD0.03cc across electro-mechanical linac tolerances.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -154,10 +174,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_analyze_epid_three_way",
-        "description": (
-            "Closed-loop three-way TPS vs Trajectory-Log vs Deconvolved EPID portal dosimetry "
-            "forensics detecting encoder-blind silent hardware faults and beam steering tilts."
-        ),
+        "description": "Closed-loop three-way TPS vs Trajectory-Log vs Deconvolved EPID portal dosimetry forensics detecting encoder-blind silent hardware faults and beam steering tilts.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -171,10 +194,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_forecast_tg142_rul",
-        "description": (
-            "Run Local-Linear-Trend Kalman state-space forecasting over multi-day AAPM TG-142/MPC "
-            "QA trends to predict Remaining Useful Life (RUL) and 95% credible breach envelopes."
-        ),
+        "description": "Run Local-Linear-Trend Kalman state-space forecasting over multi-day AAPM TG-142/MPC QA trends to predict Remaining Useful Life (RUL) and 95% credible breach envelopes.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -192,11 +218,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_certify_plan_robustness",
-        "description": (
-            "Compute plan-specific inverse mechanical tolerance budgets, 95% ellipsoidal "
-            "adversarial Delivery Robustness Certificates, TG-142 stealth-risk detection, "
-            "and a fleet-wide linac-to-patient safe-routing transfer matrix."
-        ),
+        "description": "Compute plan-specific inverse mechanical tolerance budgets, 95% ellipsoidal adversarial Delivery Robustness Certificates, TG-142 stealth-risk detection, and a fleet-wide linac-to-patient safe-routing transfer matrix.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -206,10 +234,13 @@ TOOL_SPECS: list[dict[str, Any]] = [
     },
     {
         "name": "linac_simulate_leaf_outage",
-        "description": (
-            "Counterfactual 3D perturbative ΔDVH replay evaluating whether a patient can be "
-            "safely treated if a failing MLC leaf is locked parked/closed or adjacent-leaf compensated."
-        ),
+        "description": "Counterfactual 3D perturbative ΔDVH replay evaluating whether a patient can be safely treated if a failing MLC leaf is locked parked/closed or adjacent-leaf compensated.",
+        "annotations": {
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         "inputSchema": {
             "type": "object",
             "properties": {
