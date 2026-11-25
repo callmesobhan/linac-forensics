@@ -2,13 +2,13 @@
 
 **Closed-Loop Linac Telemetry, Three-Way EPID, Perturbative 3D Delivery-Forensics & Plan-Specific Inverse Tolerance Robustness Engine**
 
-[![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-0072B2.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/version-0.3.0-56B4E9.svg)](pyproject.toml)
-[![License: Non-Commercial Research & Personal Use](https://img.shields.io/badge/license-Non--Commercial%20Research%20%26%20Personal%20Use-CC79A7.svg)](LICENSE)
-[![Research Software](https://img.shields.io/badge/status-Research%20Software%20%E2%80%94%20NOT%20A%20MEDICAL%20DEVICE-D55E00.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/pytest-44%20passed%20%7C%200%20warnings-009E73.svg)](docs/AUDIT_REPORT.md)
-[![Coverage](https://img.shields.io/badge/coverage-95.9%25-0072B2.svg)](docs/AUDIT_REPORT.md)
-[![Ruff](https://img.shields.io/badge/ruff-0%20errors-009E73.svg)](pyproject.toml)
+[![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-1D3557?style=flat-square&labelColor=1E242B)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/version-0.3.0-E87A00?style=flat-square&labelColor=1E242B)](pyproject.toml)
+[![License: Non-Commercial Research & Personal Use](https://img.shields.io/badge/license-Non--Commercial%20Research%20%26%20Personal%20Use-495057?style=flat-square&labelColor=1E242B)](LICENSE)
+[![Research Software](https://img.shields.io/badge/status-Research%20Software%20%E2%80%94%20NOT%20A%20MEDICAL%20DEVICE-D62828?style=flat-square&labelColor=1E242B)](LICENSE)
+[![Tests](https://img.shields.io/badge/pytest-44%20passed%20%7C%200%20warnings-1B8A7A?style=flat-square&labelColor=1E242B)](docs/AUDIT_REPORT.md)
+[![Coverage](https://img.shields.io/badge/coverage-95.9%25-1D3557?style=flat-square&labelColor=1E242B)](docs/AUDIT_REPORT.md)
+[![Ruff](https://img.shields.io/badge/ruff-0%20errors-1B8A7A?style=flat-square&labelColor=1E242B)](pyproject.toml)
 
 > **Non-Commercial Research & Personal Use Only — Citation Required.**
 > This software is licensed exclusively for **non-commercial academic/scientific research (with mandatory citation of `CITATION.cff`)** and **personal non-commercial study**. **Commercial use is strictly prohibited** without prior written authorization — see [LICENSE](LICENSE).
